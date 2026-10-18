@@ -1,20 +1,10 @@
 // shared: nav/footer, Phantom wallet, base58, the launch-funding transaction (transfer + memo), canonical patch hash
-// Patchy, the mascot: a little patch plug with a cable tail
-const MASCOT = (c = '#ffc12e') => `<svg viewBox="0 0 64 64"><path d="M32 12C32 4 44 2 50 6" stroke="#1b1712" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M32 12C32 4 44 2 50 6" stroke="#ff6a3d" stroke-width="2.5" fill="none" stroke-linecap="round"/><rect x="26" y="9" width="12" height="9" rx="2" fill="#bdb3a0" stroke="#1b1712" stroke-width="3"/><rect x="10" y="17" width="44" height="40" rx="11" fill="${c}" stroke="#1b1712" stroke-width="3.5"/><circle cx="24" cy="34" r="3.4" fill="#1b1712"/><circle cx="40" cy="34" r="3.4" fill="#1b1712"/><circle cx="25" cy="33" r="1.1" fill="#fff"/><circle cx="41" cy="33" r="1.1" fill="#fff"/><path d="M27 42q5 5 10 0" stroke="#1b1712" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="18" cy="41" rx="3.4" ry="2.2" fill="#ff8fb3"/><ellipse cx="46" cy="41" rx="3.4" ry="2.2" fill="#ff8fb3"/></svg>`;
-const LOGO = MASCOT();
+const LOGO = '<svg viewBox="0 0 40 40"><rect x="3" y="5" width="34" height="30" rx="4" fill="#ece4d2"/><circle cx="12" cy="14" r="4" fill="#1b1712"/><circle cx="28" cy="14" r="4" fill="#1b1712"/><circle cx="12" cy="27" r="4" fill="#1b1712"/><circle cx="28" cy="27" r="4" fill="#1b1712"/><path d="M12 14C12 24 28 18 28 27" stroke="#ff5a36" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M28 14C28 22 12 20 12 27" stroke="#2f6bff" stroke-width="3" fill="none" stroke-linecap="round"/></svg>';
 const CABLES = ['#ff5a36', '#2f6bff', '#ffc12e', '#19c98a', '#ff4fa3', '#8c5cff'];
-// ticker of real receipts (hidden until the first coin has done something)
-async function ticker(nav) { try { const { items } = await (await fetch('/api/activity?n=24')).json(); if (!items.length) return;
-  const C = { launch: '#ff6a3d', fees: '#19c98a', buyback: '#ff6a3d', burn: '#ffc12e', airdrop: '#19c98a', lottery: '#ff4fa3', stock: '#3b6cff', creator: '#8c5cff', keep: '#d9cfba' };
-  const row = items.map((r) => `<span><i style="background:${r.ok ? C[r.kind] || '#d9cfba' : '#fff'}"></i>${esc(r.ticker)} ${esc(r.text)} <em>${ago(r.at)}</em></span>`).join('');
-  const t = document.createElement('div'); t.className = 'ticker'; t.innerHTML = `<div class="run">${row}${row}</div>`; nav.after(t); } catch {} }
-// fade/slide elements with class .rv in as they scroll into view
-function reveal() { const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
-  document.querySelectorAll('.rv:not(.in)').forEach((el, i) => { el.style.transitionDelay = (i % 3) * 90 + 'ms'; io.observe(el); }); }
 function chrome(active) {
   const n = document.createElement('nav'); n.className = 'top';
-  n.innerHTML = `<div class="wrap"><a class="brand" href="/">${LOGO}PATCHBAY</a><div class="links">${[['/build', 'Build'], ['/coins', 'Coins'], ['/#recipes', 'Recipes'], ['/docs', 'Docs']].map(([h, l]) => `<a href="${h}" class="${active === h ? 'on' : ''}">${l}</a>`).join('')}</div><div class="sp"></div><button class="btn" id="wbtn" onclick="connect()">Connect</button><a class="btn hot" href="/build">Launch a coin</a></div>`;
-  document.body.prepend(n); ticker(n);
+  n.innerHTML = `<div class="wrap"><a class="brand" href="/">${LOGO}PATCHBAY</a><div class="links">${[['/build', 'Build'], ['/coins', 'Coins'], ['/docs', 'How it works']].map(([h, l]) => `<a href="${h}" class="${active === h ? 'on' : ''}">${l}</a>`).join('')}</div><div class="sp"></div><button class="btn dark" id="wbtn" onclick="connect()">Connect</button><a class="btn hot" href="/build">Launch</a></div>`;
+  document.body.prepend(n);
   const f = document.createElement('footer'); f.innerHTML = `<div class="wrap"><span class="brand" style="font-size:14px">${LOGO}PATCHBAY</span><span>coins that play themselves · launched on pump.fun · rules fingerprinted on Solana</span><div class="sp"></div><a href="/docs">Docs</a><a href="/coins">Coins</a></div>`; document.body.append(f);
   try { const w = localStorage.getItem('pb_wallet'); if (w) setWallet(w); } catch {}
   const p = sol(); if (p && p.on) p.on('accountChanged', (k) => setWallet(k ? k.toString() : null));

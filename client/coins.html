@@ -1,10 +1,10 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Coins · PATCHBAY</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
-<style>.hd{padding:50px 0 26px;text-align:center}.hd h1{font-size:clamp(40px,5.6vw,72px)}.hd p{color:var(--ink2);margin-top:10px;font-size:16px}
+<style>.hd{padding:44px 0 20px}.hd h1{font-size:clamp(40px,5.6vw,72px)}.hd p{color:#b9ae9a;margin-top:10px;font-size:16px}
 .g{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.cc{padding:28px 18px 18px;display:grid;gap:12px}.cc .h{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center}.cc img{width:58px;height:58px;border-radius:9px;border:2px solid var(--ink);object-fit:cover}
 .cc .sym{font-family:var(--disp);font-weight:900;font-size:20px}.cc ul{margin-left:16px;font-size:13px;color:var(--ink2);line-height:1.5}.cc .cab{display:flex;gap:3px;height:6px}.cc .cab i{flex:1;border-radius:3px}
 .st{display:flex;gap:14px;font-family:var(--mono);font-size:12px;color:var(--ink2)}@media(max-width:1000px){.g{grid-template-columns:1fr}}</style></head><body>
-<main class="wrap"><section class="hd"><div class="silk" style="color:var(--ink3)">// the rack</div><h1 class="disp" style="margin-top:8px">Every coin, playing.</h1><p>Each one runs its own patch on its own creator fees. Open any of them to see the receipts.</p></section><div class="g" id="g"></div></main>
+<main class="wrap"><section class="hd"><div class="silk" style="color:#8d8372">// the rack</div><h1 class="disp" style="margin-top:8px">Every coin, playing.</h1><p>Each one runs its own patch on its own creator fees. Open any of them to see the receipts.</p></section><div class="g" id="g"></div></main>
 <script src="/common.js"></script><script>chrome('/coins');
 (async () => { const { coins } = await api('/api/coins');
   $('g').innerHTML = coins.length ? coins.map((c) => `<a class="plate cc" href="/c/${c.mint}"><div class="cab">${c.patch.wires.map((w, i) => `<i style="background:${CABLES[i % CABLES.length]}"></i>`).join('')}</div><div class="h"><img src="${c.image}"><div><div class="sym">$${esc(c.symbol)}</div><div class="silk">${esc(c.name)}</div></div><span class="led g on"></span></div><ul>${c.rules.slice(0, 2).map((r) => `<li>${esc(r)}</li>`).join('')}</ul><div class="st"><span>${c.market ? usd(c.market.mcap) + ' mcap' : 'new'}</span><span>${solFmt(c.feesTotal)} SOL fees</span><span>${ago(c.launched)}</span></div></a>`).join('')
