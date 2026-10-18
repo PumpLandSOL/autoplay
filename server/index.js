@@ -13,8 +13,11 @@ const DB = path.join(DIR, 'db.json');
 
 // ---------- vault keys: AES-256-GCM at rest under MASTER_KEY (env) or a generated key file in DATA_PATH ----------
 const KEYFILE = path.join(DIR, '.master');
-const MASTER = process.env.MASTER_KEY ? Buffer.from(process.env.MASTER_KEY, 'hex') : (fs.existsSync(KEYFILE) ? Buffer.from(fs.readFileSync(KEYFILE, 'utf8').trim(), 'hex') : (() => { const k = crypto.randomBytes(32); fs.writeFileSync(KEYFILE, k.toString('hex'), { mode: 0o600 }); return k; })());
-if (MASTER.length !== 32) throw new Error('MASTER_KEY must be 64 hex chars');
+const MK = process.env.MASTER_KEY || ''; // 64 hex chars, or base64 of 32 bytes (Render generateValue)
+const MASTER = MK ? Buffer.from(MK, /^[0-9a-f]{64}$/i.test(MK) ? 'hex' : 'base64') : (fs.existsSync(KEYFILE) ? Buffer.from(fs.readFileSync(KEYFILE, 'utf8').trim(), 'hex') : (() => { const k = crypto.randomBytes(32); fs.writeFileSync(KEYFILE, k.toString('hex'), { mode: 0o600 }); return k; })());
+if (MASTER.length !== 32) throw new Error('MASTER_KEY must be 32 bytes (64 hex or base64)');
+// on Render, vault keys must live on a persistent disk or a redeploy would lose them: no launches without DATA_PATH
+const LAUNCHES_OPEN = !process.env.RENDER || !!process.env.DATA_PATH;
 const seal = (seed) => { const iv = crypto.randomBytes(12), c = crypto.createCipheriv('aes-256-gcm', MASTER, iv); const ct = Buffer.concat([c.update(seed), c.final()]); return [iv, c.getAuthTag(), ct].map((b) => b.toString('base64')).join('.'); };
 const open = (s) => { const [iv, tag, ct] = s.split('.').map((x) => Buffer.from(x, 'base64')); const d = crypto.createDecipheriv('aes-256-gcm', MASTER, iv); d.setAuthTag(tag); return Buffer.concat([d.update(ct), d.final()]); };
 const vaultOf = (coin) => S.keypair(open(coin.vaultKey));
@@ -141,7 +144,7 @@ const vcache = new Map();
 http.createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x'), p = u.pathname, ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   try {
-    if (p === '/api/catalog') return send(res, 200, { triggers: R.TRIGGERS, actions: R.ACTIONS, stocks: Object.keys(R.STOCKS), launchCost: LAUNCH_COST + RESERVE, runMin: RUN_MIN });
+    if (p === '/api/catalog') return send(res, 200, { launchesOpen: LAUNCHES_OPEN, triggers: R.TRIGGERS, actions: R.ACTIONS, stocks: Object.keys(R.STOCKS), launchCost: LAUNCH_COST + RESERVE, runMin: RUN_MIN });
     if (p === '/api/stats') { const L = live(); return send(res, 200, { coins: L.length, routedSol: D.stats.routed / 1e9, feesSol: D.stats.fees / 1e9, actions: D.stats.actions, mcapUsd: L.reduce((s, c) => s + ((c.market && c.market.mcap) || 0), 0) }); }
     if (p === '/api/activity') return send(res, 200, { items: D.receipts.slice(0, Math.min(100, +u.searchParams.get('n') || 40)) });
     if (p === '/api/coins') return send(res, 200, { coins: live().sort((a, b) => (b.launched || 0) - (a.launched || 0)).slice(0, 100).map(pub) });
@@ -156,7 +159,7 @@ http.createServer(async (req, res) => {
       return send(res, 200, { mint: c.mint, creator: c.creator, vault: c.vault, patch: c.patch, canonical: R.canon(c.patch), hash: c.hash, fund: fund && { sig: c.fundSig, signer: fund.signer, memo: fund.memo, received: fund.received, time: fund.time }, vaultMemo: vm && { sig: c.memoSig, signer: vm.signer, memo: vm.memo, time: vm.time }, createSig: c.createSig }); }
     if (p === '/api/parse' && req.method === 'POST') { const { text } = await body(req, 4000); const r = R.parse(text); return r.error ? send(res, 400, r) : send(res, 200, { patch: r.patch, rules: R.describe(r.patch), hash: R.fingerprint(r.patch) }); }
     if (p === '/api/validate' && req.method === 'POST') { const r = R.normalize((await body(req, 40000)).patch); return r.error ? send(res, 400, r) : send(res, 200, { patch: r.patch, rules: R.describe(r.patch), hash: R.fingerprint(r.patch) }); }
-    if (p === '/api/launch/prepare' && req.method === 'POST') { if (limited(ip, +process.env.LAUNCH_RPM || 6)) return send(res, 429, { error: 'slow down' }); try { return send(res, 200, await prepare(await body(req))); } catch (e) { return send(res, 400, { error: String(e.message || e) }); } }
+    if (p === '/api/launch/prepare' && req.method === 'POST') { if (!LAUNCHES_OPEN) return send(res, 503, { error: 'launches open once the server has persistent storage' }); if (limited(ip, +process.env.LAUNCH_RPM || 6)) return send(res, 429, { error: 'slow down' }); try { return send(res, 200, await prepare(await body(req))); } catch (e) { return send(res, 400, { error: String(e.message || e) }); } }
     if (p === '/api/launch/confirm' && req.method === 'POST') { const { id, sig } = await body(req, 4000); if (!/^[1-9A-HJ-NP-Za-km-z]{60,90}$/.test(sig || '')) return send(res, 400, { error: 'bad signature' });
       try { return send(res, 200, await confirmLaunch(id, sig)); } catch (e) { return send(res, 400, { error: String(e.message || e) }); } }
     if (p.startsWith('/api/launch/') && req.method === 'GET') { const c = D.coins[p.slice(12)]; return c ? send(res, 200, { id: c.id, status: c.status, mint: c.mint, vault: c.vault, need: c.need, hash: c.hash, error: c.error || null }) : send(res, 404, { error: 'not found' }); }
