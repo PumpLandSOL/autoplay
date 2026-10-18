@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My coins · PATCHBAY</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
+<style>.hd{padding:50px 0 26px;text-align:center}.hd h1{font-size:clamp(40px,5.6vw,72px)}.hd p{color:#b9ae9a;margin:10px auto 0;font-size:16px;max-width:620px;line-height:1.55}
+.g{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.cc{padding:28px 18px 18px;display:grid;gap:12px}.cc .h{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center}.cc img{width:58px;height:58px;border-radius:9px;border:2px solid var(--ink);object-fit:cover}
+.cc .sym{font-family:var(--disp);font-weight:900;font-size:20px}.st{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--ink2)}.cc .row{display:flex;gap:8px;flex-wrap:wrap}.cc .row a{font-family:var(--mono);font-size:11.5px;border:1.5px solid var(--ink);border-radius:99px;padding:4px 10px}
+.empty{padding:34px 24px;text-align:center;grid-column:1/-1}@media(max-width:1000px){.g{grid-template-columns:1fr}}</style></head><body>
+<main class="wrap"><section class="hd"><div class="silk" style="color:#8d8372">// my coins</div><h1 class="disp" style="margin-top:8px">Your rack.</h1><p>Every coin your wallet launched, what its vault has done, and the links to share it.</p></section><div class="g" id="g"></div></main>
+<script src="/common.js"></script><script>chrome('/me');
+async function load() { if (!WALLET) { $('g').innerHTML = '<div class="plate empty"><b style="font-family:var(--disp);font-size:20px">Connect your wallet</b><p style="color:var(--ink2);margin-top:8px">Your coins are the ones launched from your Solana wallet.</p><button class="btn hot" style="margin-top:14px" onclick="connect()">Connect</button></div>'; return; }
+  const { coins } = await api('/api/coins?creator=' + WALLET);
+  $('g').innerHTML = coins.length ? coins.map((c) => `<div class="plate cc"><div class="h"><img src="${c.image}"><div><div class="sym">$${esc(c.symbol)}</div><div class="silk">${esc(c.name)} · ${esc(c.status)}</div></div><span class="led g ${c.status === 'live' ? 'on' : ''}"></span></div>
+    <div class="st"><span>${c.market ? usd(c.market.mcap) + ' mcap' : 'no market yet'}</span><span>${solFmt(c.feesTotal)} SOL fees</span><span>${solFmt(c.boughtBack)} SOL bought back</span></div>
+    <div class="row">${c.status === 'live' ? `<a href="/c/${c.mint}">open</a><a href="/verify/${c.mint}">verify</a><a href="/embed/${c.mint}" target="_blank">embed</a><a href="https://pump.fun/coin/${c.mint}" target="_blank">pump.fun ↗</a>` : c.status === 'failed' ? `<span class="silk">create failed${c.error ? ': ' + esc(c.error) : ''} · refunded to your wallet</span>` : '<span class="silk">launching…</span>'}</div></div>`).join('')
+    : '<div class="plate empty"><b style="font-family:var(--disp);font-size:20px">No coins yet</b><p style="color:var(--ink2);margin-top:8px">Patch one on the bench and launch it from this wallet.</p><a class="btn hot" style="margin-top:14px" href="/build">Open the bench →</a></div>'; }
+document.addEventListener('wallet', load); load();
+</script></body></html>

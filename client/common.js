@@ -3,9 +3,14 @@ const LOGO = '<svg viewBox="0 0 40 40"><rect x="3" y="5" width="34" height="30" 
 const CABLES = ['#ff5a36', '#2f6bff', '#ffc12e', '#19c98a', '#ff4fa3', '#8c5cff'];
 function chrome(active) {
   const n = document.createElement('nav'); n.className = 'top';
-  n.innerHTML = `<div class="wrap"><a class="brand" href="/">${LOGO}PATCHBAY</a><div class="links">${[['/build', 'Build'], ['/coins', 'Coins'], ['/docs', 'How it works']].map(([h, l]) => `<a href="${h}" class="${active === h ? 'on' : ''}">${l}</a>`).join('')}</div><div class="sp"></div><button class="btn dark" id="wbtn" onclick="connect()">Connect</button><a class="btn hot" href="/build">Launch</a></div>`;
+  n.innerHTML = `<div class="wrap"><a class="brand" href="/">${LOGO}PATCHBAY</a><div class="links">${[['/build', 'Build'], ['/coins', 'Coins'], ['/me', 'My coins'], ['/docs', 'Docs']].map(([h, l]) => `<a href="${h}" class="${active === h ? 'on' : ''}">${l}</a>`).join('')}</div><div class="sp"></div><button class="btn dark" id="wbtn" onclick="connect()">Connect</button><a class="btn hot" href="/build">Launch</a></div>`;
   document.body.prepend(n);
-  const f = document.createElement('footer'); f.innerHTML = `<div class="wrap"><span class="brand" style="font-size:14px">${LOGO}PATCHBAY</span><span>coins that play themselves · launched on pump.fun · rules fingerprinted on Solana</span><div class="sp"></div><a href="/docs">Docs</a><a href="/coins">Coins</a></div>`; document.body.append(f);
+  const COLS = [['Platform', [['Builder', '/build'], ['Quick launch', '/#quick'], ['Explore', '/coins'], ['Flywheel', '/docs#flywheel'], ['My coins', '/me'], ['Brand', '/docs#brand']]],
+    ['Build with', [['Examples', '/#recipes'], ['Modules', '/docs#modules'], ['Stock rules', '/docs#stocks'], ['Rules gallery', '/docs#gallery'], ['Embed', '/docs#embed']]],
+    ['Docs', [['Receipts', '/docs#receipts'], ['Verify on Solana', '/docs#verify'], ['Vault', '/docs#vault'], ['FAQ', '/#faq'], ['Launching', '/docs#launching']]],
+    ['Legal', [['Terms', '/docs#terms'], ['Risks', '/docs#risks'], ['Privacy', '/docs#privacy']]],
+    ['Network', [['Solana', 'https://solana.com'], ['pump.fun', 'https://pump.fun'], ['Webhooks', '/docs#webhooks']]]];
+  const f = document.createElement('footer'); f.innerHTML = `<div class="wrap fcols"><div class="fbrand"><span class="brand" style="font-size:16px">${LOGO}PATCHBAY</span><p>Coins that play themselves. Launched on pump.fun, rules fingerprinted on Solana, every move on-chain.</p></div>${COLS.map(([h, ls]) => `<div class="fcol"><h5>${h}</h5>${ls.map(([t, u]) => `<a href="${u}"${/^https/.test(u) ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`).join('')}</div>`).join('')}</div><div class="wrap fbar"><span>© ${new Date().getFullYear()} PATCHBAY</span><span>no team tokens · no platform fee · every action has a receipt</span></div>`; document.body.append(f);
   try { const w = localStorage.getItem('pb_wallet'); if (w) setWallet(w); } catch {}
   const p = sol(); if (p && p.on) p.on('accountChanged', (k) => setWallet(k ? k.toString() : null));
 }

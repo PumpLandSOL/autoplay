@@ -54,6 +54,10 @@ h2{font-family:var(--disp);font-weight:900;font-size:clamp(32px,4vw,52px);letter
 .feed{margin-top:22px;padding:6px 18px}.fr{display:grid;grid-template-columns:110px 1fr 120px;gap:12px;padding:12px 0;border-bottom:1px solid #2c261f;font-family:var(--mono);font-size:13px;align-items:center}.fr:last-child{border:0}
 .coins{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}
 @media(max-width:1000px){.hero,.steps,.recipes,.diff,.coins{grid-template-columns:1fr}.lcds{grid-template-columns:1fr 1fr}.synth{height:440px}}
+.faq{max-width:860px;margin:26px auto 0;display:grid;gap:10px}.faq details{padding:0;overflow:hidden}.faq summary{list-style:none;cursor:pointer;padding:26px 56px 20px 22px;font-family:var(--disp);font-weight:700;font-size:17px;position:relative}.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:'';position:absolute;right:22px;top:50%;width:22px;height:22px;margin-top:-6px;border-radius:50%;background:radial-gradient(circle,#0d0b09 0 4px,#bdb3a0 5px 7px,#77705f 8px 9px,#d6cdb9 10px);transition:transform .3s}
+.faq details[open] summary::after{transform:rotate(180deg);box-shadow:0 0 0 3px var(--min)}.faq details[open]{box-shadow:inset 0 1px 0 #fff8,inset 0 -2px 0 #0002,0 10px 30px rgba(0,0,0,.45),0 0 0 2px var(--min)}
+.faq .a{padding:0 22px 22px;color:var(--ink2);font-size:15px;line-height:1.65;animation:fq .35s ease}@keyframes fq{from{opacity:0;transform:translateY(-6px)}}
 </style></head><body>
 <main class="wrap">
 <section class="hero">
@@ -62,7 +66,7 @@ h2{font-family:var(--disp);font-weight:900;font-size:clamp(32px,4vw,52px);letter
   <svg class="scope" viewBox="0 0 820 46" preserveAspectRatio="none"><path id="scope"/></svg>
   <div class="now" id="now"></div>
   <p>Patch triggers to actions with cables: fees arrive → buy back, burn, airdrop holders, buy Tesla. Launch on pump.fun in one signature. The coin's vault is its creator, so its fees pay for its own rules. Forever. Every move lands on-chain with a receipt.</p>
-  <div class="say"><input id="say" placeholder="or say it: buy back half and burn it, airdrop the rest" autocomplete="off"><button class="btn hot" onclick="location.href='/build?say='+encodeURIComponent($('say').value||$('say').placeholder.replace('or say it: ',''))">Patch it</button></div>
+  <div class="say" id="quick" style="scroll-margin-top:120px"><input id="say" placeholder="or say it: buy back half and burn it, airdrop the rest" autocomplete="off"><button class="btn hot" onclick="location.href='/build?say='+encodeURIComponent($('say').value||$('say').placeholder.replace('or say it: ',''))">Patch it</button></div>
   <div class="cta"><a class="btn hot" href="/build">Open the bench →</a><a class="btn dark" href="/docs">How it works</a></div></div>
 </section>
 <div class="synth" id="synth"><div class="rail t"></div><div class="rail b"></div><svg class="wires" id="wires"></svg></div>
@@ -91,6 +95,20 @@ h2{font-family:var(--disp);font-weight:900;font-size:clamp(32px,4vw,52px);letter
 <h2>Live coins.</h2><div class="coins" id="coins"></div>
 <h2>The tape.</h2><p class="sub">Every action every coin takes, newest first.</p>
 <div class="plate feed" style="background:#191512;color:var(--panel);box-shadow:none;border:2px solid #2c261f" id="feed"></div>
+<h2 id="faq" style="scroll-margin-top:90px">Questions.</h2><p class="sub">Everything people ask before they launch.</p>
+<div class="faq"><details class="plate rv"><summary>What is PATCHBAY?</summary><div class="a">A launchpad for pump.fun coins that run their own rules. You wire triggers (fees arrive, a timer, a market-cap line, a price move) to actions (buy back, burn, airdrop, random holder, buy a stock, pay the creator, keep). The coin's vault is its creator, so its creator fees pay for those rules, forever.</div></details>
+<details class="plate rv"><summary>Where does the money for the rules come from?</summary><div class="a">From the coin's own creator fees. pump.fun pays creator fees on every trade to the coin's creator, and a PATCHBAY coin's creator is its vault. The vault claims them when the claim is worth more than its gas and spends them exactly as the patch says.</div></details>
+<details class="plate rv"><summary>What does it cost to launch?</summary><div class="a">Your chosen vault buy plus 0.04 SOL: 0.03 SOL for pump.fun's create and 0.01 SOL kept in the vault for gas. PATCHBAY takes no fee and has no team allocation of any coin.</div></details>
+<details class="plate rv"><summary>Can the rules be changed after launch?</summary><div class="a">No. There is no edit endpoint, and the patch's SHA-256 fingerprint is written on Solana by both the creator and the vault. If anyone changed the rules, the fingerprint would stop matching and /verify would show it.</div></details>
+<details class="plate rv"><summary>How do I know a coin really runs its patch?</summary><div class="a">Every action is a Solana transaction signed by the coin's vault, listed as a receipt with a Solscan link. The verify page recomputes the patch fingerprint in your browser and checks it against the memos on-chain.</div></details>
+<details class="plate rv"><summary>Who holds the vault key?</summary><div class="a">The PATCHBAY executor, encrypted at rest with AES-256-GCM. It only signs the transactions the patch prescribes, and every one of them is public.</div></details>
+<details class="plate rv"><summary>How often does a coin act?</summary><div class="a">Every 10 minutes the executor checks each coin: it simulates the fee claim for free, claims when it's worth it, reads the market, and fires whichever triggers are due.</div></details>
+<details class="plate rv"><summary>How is the random holder picked?</summary><div class="a">Among the top 20 real holders (the bonding curve, pools and the vault are excluded), weighted by balance, using sha256 of the run's Solana blockhash and the mint. The seed and winner are in the receipt, so anyone can recompute the pick.</div></details>
+<details class="plate rv"><summary>Who gets airdrops?</summary><div class="a">The top N holders you choose (3 to 20), pro rata to their balance, in SOL. Shares too small to open a brand-new Solana account are skipped so one tiny share never fails the batch.</div></details>
+<details class="plate rv"><summary>What stocks can a coin buy?</summary><div class="a">TSLA, NVDA and SPY as xStocks, tokenized equities traded on Solana, swapped through Jupiter. The vault holds them and the coin page shows its holdings live.</div></details>
+<details class="plate rv"><summary>What happens after the coin graduates from the bonding curve?</summary><div class="a">Everything keeps working: buybacks route through PumpSwap and the creator-fee claim covers both the curve and the pool.</div></details>
+<details class="plate rv"><summary>What if a launch or an action fails?</summary><div class="a">If pump.fun's create fails, the vault refunds everything to your wallet automatically. If an action fails during a run, it's logged as a receipt with the reason and the SOL stays in the vault for the next run.</div></details>
+<details class="plate rv"><summary>Can I build on top of PATCHBAY?</summary><div class="a">Yes. There's a public JSON API, embeddable coin cards at /embed/&lt;mint>, and HMAC-signed webhooks that push every receipt to your server. See the docs.</div></details></div>
 </main>
 <script src="/common.js"></script><script>
 chrome('/');

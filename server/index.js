@@ -26,8 +26,16 @@ const vaultOf = (coin) => S.keypair(open(coin.vaultKey));
 let D; try { D = JSON.parse(fs.readFileSync(DB, 'utf8')); } catch { D = { coins: {}, receipts: [], stats: { routed: 0, actions: 0, fees: 0, burnedRaw: '0' } }; }
 let dirty = false; const save = () => { dirty = true; }; setInterval(() => { if (!dirty) return; dirty = false; const tmp = DB + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(D)); fs.renameSync(tmp, DB); }, 3000);
 const coins = () => Object.values(D.coins);
+// ---------- webhooks: every receipt for a coin is POSTed to its subscribers, signed with HMAC-SHA256 ----------
+D.hooks = D.hooks || {}; // mint → [{ id, url, secret, created, fails }]
+const PRIVATE_HOST = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.|\[|.*\.local$|.*\.internal$|.*\.localhost$)/i;
+function hookUrlOk(u) { try { const x = new URL(u); return x.protocol === 'https:' && !PRIVATE_HOST.test(x.hostname) && u.length <= 300; } catch { return false; } }
+function deliver(mint, row) { for (const h of D.hooks[mint] || []) { const body = JSON.stringify({ event: 'receipt', mint, receipt: row }), sig = crypto.createHmac('sha256', h.secret).update(body).digest('hex');
+  fetch(h.url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-patchbay-signature': 'sha256=' + sig, 'x-patchbay-event': 'receipt' }, body, redirect: 'manual', signal: AbortSignal.timeout(8000) })
+    .then((x) => { h.fails = x.ok ? 0 : (h.fails || 0) + 1; }).catch(() => { h.fails = (h.fails || 0) + 1; })
+    .finally(() => { if (h.fails >= 50) D.hooks[mint] = D.hooks[mint].filter((y) => y !== h); save(); }); } }
 function receipt(coin, r) { const row = { id: crypto.randomBytes(5).toString('hex'), at: Date.now(), mint: coin.mint, ticker: coin.symbol, ...r }; D.receipts.unshift(row); if (D.receipts.length > 5000) D.receipts.length = 5000;
-  (coin.receipts = coin.receipts || []).unshift(row.id); if (coin.receipts.length > 400) coin.receipts.length = 400; if (r.ok) { D.stats.actions++; D.stats.routed += r.lamports || 0; } save(); return row; }
+  (coin.receipts = coin.receipts || []).unshift(row.id); if (coin.mint) deliver(coin.mint, row); if (coin.receipts.length > 400) coin.receipts.length = 400; if (r.ok) { D.stats.actions++; D.stats.routed += r.lamports || 0; } save(); return row; }
 
 // ---------- launch: prepare → creator funds the vault (memo = fingerprint) → vault creates the coin ----------
 async function prepare(b) {
@@ -147,6 +155,14 @@ http.createServer(async (req, res) => {
     if (p === '/api/catalog') return send(res, 200, { launchesOpen: LAUNCHES_OPEN, triggers: R.TRIGGERS, actions: R.ACTIONS, stocks: Object.keys(R.STOCKS), launchCost: LAUNCH_COST + RESERVE, runMin: RUN_MIN });
     if (p === '/api/stats') { const L = live(); return send(res, 200, { coins: L.length, routedSol: D.stats.routed / 1e9, feesSol: D.stats.fees / 1e9, actions: D.stats.actions, mcapUsd: L.reduce((s, c) => s + ((c.market && c.market.mcap) || 0), 0) }); }
     if (p === '/api/activity') return send(res, 200, { items: D.receipts.slice(0, Math.min(100, +u.searchParams.get('n') || 40)) });
+    if (p === '/api/coins' && u.searchParams.get('creator')) { const w = u.searchParams.get('creator'); return send(res, 200, { coins: coins().filter((c) => c.creator === w && c.status !== 'awaiting-funds').sort((a, b) => (b.created || 0) - (a.created || 0)).map(pub) }); }
+    if (p === '/api/webhooks' && req.method === 'POST') { if (limited(ip + ':wh', 20)) return send(res, 429, { error: 'slow down' }); const { mint, url } = await body(req, 4000); const c = coins().find((x) => x.mint === mint && x.status === 'live');
+      if (!c) return send(res, 404, { error: 'unknown coin' }); if (!hookUrlOk(url)) return send(res, 400, { error: 'url must be a public https URL' });
+      const list = D.hooks[mint] = D.hooks[mint] || []; if (list.length >= 20) return send(res, 400, { error: 'this coin already has 20 webhooks' });
+      const h = { id: crypto.randomBytes(6).toString('hex'), url, secret: crypto.randomBytes(24).toString('hex'), created: Date.now(), fails: 0 }; list.push(h); save();
+      return send(res, 200, { id: h.id, mint, url, secret: h.secret, note: 'verify x-patchbay-signature = sha256=HMAC_SHA256(secret, raw body). The secret is shown once.' }); }
+    if (p === '/api/webhooks' && req.method === 'DELETE') { const { mint, id, secret } = await body(req, 4000); const list = D.hooks[mint] || [], h = list.find((x) => x.id === id && x.secret === secret);
+      if (!h) return send(res, 404, { error: 'not found' }); D.hooks[mint] = list.filter((x) => x !== h); save(); return send(res, 200, { ok: true }); }
     if (p === '/api/coins') return send(res, 200, { coins: live().sort((a, b) => (b.launched || 0) - (a.launched || 0)).slice(0, 100).map(pub) });
     if (/^\/meta\/[0-9a-f]{16}\.json$/.test(p)) { const c = D.coins[p.slice(6, 22)]; if (!c) return send(res, 404, { error: 'not found' });
       return send(res, 200, { name: c.name, symbol: c.symbol, description: c.description, image: SITE + '/api/img/' + c.id, showName: true, createdOn: SITE, twitter: c.twitter || undefined, website: c.website || SITE + '/c/' + c.mint }, { 'cache-control': 'public, max-age=3600', 'access-control-allow-origin': '*' }); }
@@ -165,8 +181,8 @@ http.createServer(async (req, res) => {
     if (p.startsWith('/api/launch/') && req.method === 'GET') { const c = D.coins[p.slice(12)]; return c ? send(res, 200, { id: c.id, status: c.status, mint: c.mint, vault: c.vault, need: c.need, hash: c.hash, error: c.error || null }) : send(res, 404, { error: 'not found' }); }
     if (p === '/api/blockhash') return send(res, 200, { blockhash: await S.blockhash() });
     // static
-    const routes = { '/': 'index.html', '/build': 'build.html', '/coins': 'coins.html', '/docs': 'docs.html' };
-    let f = routes[p] || p.slice(1); if (p.startsWith('/c/')) f = 'coin.html'; if (p.startsWith('/verify/')) f = 'verify.html';
+    const routes = { '/': 'index.html', '/build': 'build.html', '/coins': 'coins.html', '/docs': 'docs.html', '/me': 'me.html' };
+    let f = routes[p] || p.slice(1); if (p.startsWith('/c/')) f = 'coin.html'; if (p.startsWith('/verify/')) f = 'verify.html'; if (p.startsWith('/embed/')) f = 'embed.html';
     const fp = path.join(CLIENT, path.normalize(f).replace(/^(\.\.[\/\\])+/, ''));
     if (!fp.startsWith(CLIENT) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) { res.writeHead(404, { 'content-type': 'text/plain' }); return res.end('not found'); }
     res.writeHead(200, { 'content-type': MIME[path.extname(fp)] || 'application/octet-stream' }); fs.createReadStream(fp).pipe(res);
