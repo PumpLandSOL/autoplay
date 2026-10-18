@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Docs · PATCHBAY</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
+<title>Docs · AUTOPLAY</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
 <style>.doc{display:grid;grid-template-columns:230px 1fr;gap:44px;padding:44px 0}
 .toc{position:sticky;top:90px;align-self:start;max-height:calc(100vh - 110px);overflow:auto;font-family:var(--mono);font-size:12.5px;display:grid;gap:7px}.toc h6{font-size:10.5px;letter-spacing:.18em;color:#6d6455;margin:14px 0 2px;font-weight:600}.toc a{color:#8d8372}.toc a:hover,.toc a.on{color:var(--mus)}
 .body{min-width:0}.body h1{font-size:clamp(36px,5vw,64px)}.body h2{font-family:var(--disp);font-size:26px;letter-spacing:-.02em;margin:54px 0 12px;scroll-margin-top:90px;display:flex;align-items:center;gap:12px}.body h2 .k{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:#6d6455;border:1.5px solid #3a3229;border-radius:99px;padding:3px 9px;font-weight:500}
@@ -19,7 +19,7 @@ table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}td,th{t
 <div class="body"><div class="silk" style="color:#8d8372">// docs</div><h1 class="disp" style="margin-top:8px">The whole machine.</h1>
 
 <h2 id="overview">Overview</h2>
-<p>A PATCHBAY coin is a pump.fun coin whose <b>creator is a vault</b>, not a person. pump.fun pays creator fees on every trade to the creator, so the coin's trading fees land in the vault, and the vault spends them exactly the way the coin's patch says: buy back, burn, airdrop holders, pay a random holder, buy tokenized stocks, pay the creator, or keep it for later.</p>
+<p>A AUTOPLAY coin is a pump.fun coin whose <b>creator is a vault</b>, not a person. pump.fun pays creator fees on every trade to the creator, so the coin's trading fees land in the vault, and the vault spends them exactly the way the coin's patch says: buy back, burn, airdrop holders, pay a random holder, buy tokenized stocks, pay the creator, or keep it for later.</p>
 <p>A patch is fixed at launch. There is no edit endpoint, and its SHA-256 fingerprint is written on Solana twice, so anyone can check that the rules on the site are the rules the coin launched with.</p>
 
 <h2 id="builder">Builder <span class="k">/build</span></h2>
@@ -43,7 +43,7 @@ Every hour, send 20% of the vault to one random holder.</pre>
 <p>Connect your wallet to see every coin launched from it: live, launching or refunded. Each card links to the coin page, its verify page, its embed and pump.fun.</p>
 
 <h2 id="brand">Brand</h2>
-<p>The mark is a faceplate with four jacks and two crossing cables. Download it as <a href="/favicon.svg" download style="text-decoration:underline">SVG</a>. Write the name as <b>PATCHBAY</b>, all caps. Type: Unbounded (display), IBM Plex Mono (labels), Inter Tight (text).</p>
+<p>The mark is a faceplate with four jacks and two crossing cables. Download it as <a href="/favicon.svg" download style="text-decoration:underline">SVG</a>. Write the name as <b>AUTOPLAY</b>, all caps. Type: Unbounded (display), IBM Plex Mono (labels), Inter Tight (text).</p>
 <div class="sw"><div><i style="background:#14110e"></i><span>rack #14110e</span></div><div><i style="background:#ece4d2"></i><span>bone #ece4d2</span></div><div><i style="background:#ff5a36"></i><span>tomato #ff5a36</span></div><div><i style="background:#ffc12e"></i><span>mustard #ffc12e</span></div><div><i style="background:#19c98a"></i><span>signal #19c98a</span></div><div><i style="background:#2f6bff"></i><span>cobalt #2f6bff</span></div></div>
 
 <h2 id="examples">Examples</h2>
@@ -80,12 +80,12 @@ Every hour, send 20% of the vault to one random holder.</pre>
 
 <h2 id="embed">Embed <span class="k">/embed/&lt;mint&gt;</span></h2>
 <p>Put a live card for any coin on your own site: its patch, market cap, fees, recent receipts and a verify link. It refreshes every 20 seconds.</p>
-<pre>&lt;iframe src="https://patchbay.fun/embed/&lt;MINT&gt;" width="420" height="360" style="border:0;border-radius:12px"&gt;&lt;/iframe&gt;</pre>
+<pre>&lt;iframe src="https://autoplay.fun/embed/&lt;MINT&gt;" width="420" height="360" style="border:0;border-radius:12px"&gt;&lt;/iframe&gt;</pre>
 
 <h2 id="launching">Launching</h2>
-<ol><li><b>Patch</b> on the bench, or start from a sentence.</li><li><b>Metadata:</b> name, ticker, image and links are published to pump.fun's IPFS. If that endpoint is unavailable, PATCHBAY serves the standard metadata JSON itself at <code>/meta/&lt;id&gt;.json</code>, which pump.fun reads the same way.</li>
-<li><b>One signature:</b> your wallet sends one transaction to a brand-new vault: a SOL transfer plus a Memo instruction <code>patchbay:v1:&lt;fingerprint&gt;</code>. You send your chosen vault buy + 0.03 SOL to create the coin + 0.01 SOL kept for gas.</li>
-<li><b>Create:</b> the server checks your transaction on-chain (signer, amount, memo, not reused), then the vault creates the coin on pump.fun, signed by the vault and the new mint key, with your vault buy as the first buy. The vault then writes <code>patchbay:v1:&lt;mint&gt;:&lt;fingerprint&gt;</code>.</li>
+<ol><li><b>Patch</b> on the bench, or start from a sentence.</li><li><b>Metadata:</b> name, ticker, image and links are published to pump.fun's IPFS. If that endpoint is unavailable, AUTOPLAY serves the standard metadata JSON itself at <code>/meta/&lt;id&gt;.json</code>, which pump.fun reads the same way.</li>
+<li><b>One signature:</b> your wallet sends one transaction to a brand-new vault: a SOL transfer plus a Memo instruction <code>autoplay:v1:&lt;fingerprint&gt;</code>. You send your chosen vault buy + 0.03 SOL to create the coin + 0.01 SOL kept for gas.</li>
+<li><b>Create:</b> the server checks your transaction on-chain (signer, amount, memo, not reused), then the vault creates the coin on pump.fun, signed by the vault and the new mint key, with your vault buy as the first buy. The vault then writes <code>autoplay:v1:&lt;mint&gt;:&lt;fingerprint&gt;</code>.</li>
 <li><b>Safety nets:</b> if the create fails, everything in the vault goes back to your wallet automatically. If your funding landed but confirmation timed out, press Retry; a launch left unconfirmed for 2 hours is refunded to you.</li></ol>
 
 <h2 id="vault">Vault</h2>
@@ -114,28 +114,28 @@ Every hour, send 20% of the vault to one random holder.</pre>
 <tr><td>POST /api/webhooks</td><td>subscribe a URL to a coin's receipts</td></tr></table>
 
 <h2 id="network">Solana + pump.fun</h2>
-<p>Coins are standard pump.fun tokens on Solana mainnet and trade anywhere pump.fun coins trade. PATCHBAY uses PumpPortal to build create, buy and creator-fee-claim transactions, Jupiter for stock swaps, DexScreener for market data, and Solana RPC for everything it reads and sends. Every transaction is signed by the coin's own vault.</p>
+<p>Coins are standard pump.fun tokens on Solana mainnet and trade anywhere pump.fun coins trade. AUTOPLAY uses PumpPortal to build create, buy and creator-fee-claim transactions, Jupiter for stock swaps, DexScreener for market data, and Solana RPC for everything it reads and sends. Every transaction is signed by the coin's own vault.</p>
 
 <h2 id="webhooks">Webhooks</h2>
 <p>Get every receipt for a coin pushed to your server the moment it's written, for bots, dashboards or Telegram alerts.</p>
-<pre>curl -X POST https://patchbay.fun/api/webhooks \
+<pre>curl -X POST https://autoplay.fun/api/webhooks \
   -H 'content-type: application/json' \
   -d '{"mint":"&lt;MINT&gt;","url":"https://your.server/hook"}'
 → { "id": "…", "secret": "…" }   (the secret is shown once)</pre>
-<p>Each delivery is a <code>POST</code> with body <code>{"event":"receipt","mint":…,"receipt":{…}}</code> and header <code>x-patchbay-signature: sha256=&lt;HMAC-SHA256(secret, raw body)&gt;</code>. Check it before trusting the payload. URLs must be public <code>https</code>; up to 20 webhooks per coin; a URL that fails 50 deliveries in a row is removed. Unsubscribe with <code>DELETE /api/webhooks</code> and <code>{"mint","id","secret"}</code>.</p>
+<p>Each delivery is a <code>POST</code> with body <code>{"event":"receipt","mint":…,"receipt":{…}}</code> and header <code>x-autoplay-signature: sha256=&lt;HMAC-SHA256(secret, raw body)&gt;</code>. Check it before trusting the payload. URLs must be public <code>https</code>; up to 20 webhooks per coin; a URL that fails 50 deliveries in a row is removed. Unsubscribe with <code>DELETE /api/webhooks</code> and <code>{"mint","id","secret"}</code>.</p>
 
 <h2 id="terms">Terms</h2>
-<p>PATCHBAY is software that builds and signs Solana transactions according to rules you choose. By launching a coin you confirm that you have the right to use its name, ticker and image, that you choose its patch knowingly, and that the patch cannot be changed afterwards. Coins launched here are pump.fun tokens and are also subject to pump.fun's terms. PATCHBAY takes no fee and holds no team allocation of any coin. You are responsible for complying with the laws that apply to you.</p>
+<p>AUTOPLAY is software that builds and signs Solana transactions according to rules you choose. By launching a coin you confirm that you have the right to use its name, ticker and image, that you choose its patch knowingly, and that the patch cannot be changed afterwards. Coins launched here are pump.fun tokens and are also subject to pump.fun's terms. AUTOPLAY takes no fee and holds no team allocation of any coin. You are responsible for complying with the laws that apply to you.</p>
 
 <h2 id="risks">Risks</h2>
 <ul><li><b>Markets:</b> memecoin prices move fast and can go to zero. Buybacks, burns and airdrops change supply and distribution; they don't guarantee a price.</li>
 <li><b>Fixed rules:</b> a patch runs as written. If a rule turns out not to suit the coin later, it still runs.</li>
-<li><b>Vault custody:</b> each vault key is held, encrypted, by the PATCHBAY executor. Its every action is public and verifiable, but the key is not held by the creator.</li>
+<li><b>Vault custody:</b> each vault key is held, encrypted, by the AUTOPLAY executor. Its every action is public and verifiable, but the key is not held by the creator.</li>
 <li><b>Dependencies:</b> runs rely on Solana, pump.fun, PumpPortal, Jupiter and DexScreener. If one is unavailable, that run's action fails with a receipt and the SOL waits for the next run.</li>
 <li><b>Tokenized stocks:</b> xStocks are issued by a third party and follow their issuer's terms.</li></ul>
 
 <h2 id="privacy">Privacy</h2>
-<p>PATCHBAY has no accounts and no email. It stores what a launch needs: the coin's name, ticker, image, links, patch and the creator's public wallet address, plus public on-chain receipts. Your wallet address is remembered in your own browser so you stay connected. Webhook URLs are stored to deliver receipts. There are no ad trackers.</p>
+<p>AUTOPLAY has no accounts and no email. It stores what a launch needs: the coin's name, ticker, image, links, patch and the creator's public wallet address, plus public on-chain receipts. Your wallet address is remembered in your own browser so you stay connected. Webhook URLs are stored to deliver receipts. There are no ad trackers.</p>
 </div></main>
 <script src="/common.js"></script><script>chrome('/docs');
 const links = [...document.querySelectorAll('#toc a')], secs = links.map((a) => document.querySelector(a.getAttribute('href')));

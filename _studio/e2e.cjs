@@ -1,4 +1,4 @@
-// PATCHBAY E2E. Part A: the whole server (launch flow + executor) against an in-memory chain.
+// AUTOPLAY E2E. Part A: the whole server (launch flow + executor) against an in-memory chain.
 // Part B: the browser's funding transaction, signed with a real ed25519 key and simulated on Solana mainnet.
 'use strict';
 const path = require('path'), fs = require('fs'), os = require('os'), vm = require('vm');
@@ -39,13 +39,13 @@ function fund(id, from, to, lamports, memo) { const s = sig(); L.txs[s] = { ok: 
   const base = { patch: parsed.patch, name: 'Self Playing', symbol: 'play', description: 'test', image: IMG, devBuy: 0.5, creator: creator.address };
   ok((await post('/api/launch/prepare', { ...base, creator: 'nope' })).status === 400, 'prepare rejects a bad creator address');
   ok((await post('/api/launch/prepare', { ...base, symbol: 'TOO-LONG-TICKER' })).status === 400, 'prepare rejects a bad ticker');
-  const pr = await post('/api/launch/prepare', base); ok(pr.vault && pr.need === 30e6 + 0.5e9 + 10e6 && pr.memo === 'patchbay:v1:' + parsed.hash, 'prepare: vault + need 0.54 SOL + memo carries the fingerprint');
-  ok((await post('/api/launch/confirm', { id: pr.id, sig: fund(0, creator.address, pr.vault, pr.need, 'patchbay:v1:deadbeef') })).error?.includes('memo'), 'confirm rejects a wrong memo');
+  const pr = await post('/api/launch/prepare', base); ok(pr.vault && pr.need === 30e6 + 0.5e9 + 10e6 && pr.memo === 'autoplay:v1:' + parsed.hash, 'prepare: vault + need 0.54 SOL + memo carries the fingerprint');
+  ok((await post('/api/launch/confirm', { id: pr.id, sig: fund(0, creator.address, pr.vault, pr.need, 'autoplay:v1:deadbeef') })).error?.includes('memo'), 'confirm rejects a wrong memo');
   ok((await post('/api/launch/confirm', { id: pr.id, sig: fund(0, stranger.address, pr.vault, pr.need, pr.memo) })).error?.includes('creator'), 'confirm rejects a different signer');
   ok((await post('/api/launch/confirm', { id: pr.id, sig: fund(0, creator.address, pr.vault, 1000, pr.memo) })).error?.includes('needs'), 'confirm rejects underfunding');
   L.bal[pr.vault] = 0; const good = fund(0, creator.address, pr.vault, pr.need, pr.memo);
   const live = await post('/api/launch/confirm', { id: pr.id, sig: good }); ok(live.status === 'live' && live.mint === pr.mint, 'confirm → vault creates the coin → live');
-  ok(L.sent.some((t) => t.ixs.some((i) => i.programId === S.P.memo && i.data.toString() === 'patchbay:v1:' + pr.mint + ':' + parsed.hash)), 'vault wrote its own memo binding mint ↔ fingerprint');
+  ok(L.sent.some((t) => t.ixs.some((i) => i.programId === S.P.memo && i.data.toString() === 'autoplay:v1:' + pr.mint + ':' + parsed.hash)), 'vault wrote its own memo binding mint ↔ fingerprint');
   const pr2 = await post('/api/launch/prepare', base); ok((await post('/api/launch/confirm', { id: pr2.id, sig: good })).error?.includes('already funded'), 'a funding tx cannot be reused for a second launch');
   L.createFail = true; const pr3 = await post('/api/launch/prepare', { ...base, symbol: 'FAIL' }); const f3 = fund(0, creator.address, pr3.vault, pr3.need, pr3.memo);
   const r3 = await post('/api/launch/confirm', { id: pr3.id, sig: f3 }); ok(r3.error?.includes('refunded') && L.bal[creator.address] > 0, 'failed create refunds the creator automatically'); L.createFail = false;
@@ -86,13 +86,13 @@ function fund(id, from, to, lamports, memo) { const s = sig(); L.txs[s] = { ok: 
   L.fees = 200_000_000; await srv.runCoin(coin); await new Promise((z) => setTimeout(z, 200)); global.fetch = realFetch;
   const d = caught[0]; const expect = d && 'sha256=' + require('crypto').createHmac('sha256', wh.secret).update(d.body).digest('hex');
   ok(caught.length >= 3 && JSON.parse(d.body).event === 'receipt', 'run delivered each receipt to the webhook (' + caught.length + ' deliveries)');
-  ok(d && d.headers['x-patchbay-signature'] === expect, 'delivery is HMAC-SHA256 signed with the secret');
+  ok(d && d.headers['x-autoplay-signature'] === expect, 'delivery is HMAC-SHA256 signed with the secret');
   ok(!JSON.stringify(await get('/api/coin/' + coin.mint)).includes(wh.secret), 'webhook secret never appears in public API');
   const mine = await get('/api/coins?creator=' + creator.address); ok(mine.coins.length >= 3 && mine.coins.every((c) => c.creator === creator.address), 'My coins: ' + mine.coins.length + ' coins for the creator wallet (incl. refunded)');
-  ok((await (await fetch(U + '/embed/' + coin.mint)).text()).includes('PATCHBAY embed'), 'embed page served');
+  ok((await (await fetch(U + '/embed/' + coin.mint)).text()).includes('AUTOPLAY embed'), 'embed page served');
     console.log('A · public API');
   const cv = await get('/api/coin/' + coin.mint); ok(cv.receipts.length >= 6 && cv.rules.length && !JSON.stringify(cv).includes('vaultKey') && !JSON.stringify(cv).includes(coin.vaultKey), 'coin view has receipts and never leaks the vault key');
-  const vf = await get('/api/verify/' + coin.mint); ok(vf.hash === parsed.hash && vf.canonical && vf.fund.memo === 'patchbay:v1:' + parsed.hash, 'verify returns patch, canonical bytes and the creator memo');
+  const vf = await get('/api/verify/' + coin.mint); ok(vf.hash === parsed.hash && vf.canonical && vf.fund.memo === 'autoplay:v1:' + parsed.hash, 'verify returns patch, canonical bytes and the creator memo');
   const st = await get('/api/stats'); ok(st.coins === 2 && st.actions > 5 && st.routedSol > 0.9, `stats: ${st.coins} coins, ${st.actions} actions, ${st.routedSol} SOL routed`);
   ok(!JSON.stringify(await get('/api/coins')).includes(coin.vaultKey), '/api/coins never leaks keys');
   ok(fs.readFileSync(path.join(DATA, '.master'), 'utf8').length === 64, 'master key generated in DATA_PATH');
@@ -100,8 +100,8 @@ function fund(id, from, to, lamports, memo) { const s = sig(); L.txs[s] = { ok: 
   console.log('B · real Solana: the browser funding transaction');
   const ctx = { TextEncoder, console }; vm.createContext(ctx); vm.runInContext(fs.readFileSync(ROOT + '/client/common.js', 'utf8').replace(/^const \$ =.*$/m, ''), ctx);
   const payer = S.keypair(), vault = S.keypair(), bh = await (require('./../server/sol').rpc('getLatestBlockhash', [{ commitment: 'confirmed' }])).then((r) => r.value.blockhash);
-  const msg = Buffer.from(vm.runInContext(`fundMessage(${JSON.stringify(payer.address)}, ${JSON.stringify(vault.address)}, ${JSON.stringify(bh)}, 540000000, 'patchbay:v1:${parsed.hash}')`, ctx));
-  const srvMsg = S.compileLegacy(payer.address, [S.ix.transfer(payer.address, vault.address, 540000000), S.ix.memo('patchbay:v1:' + parsed.hash, payer.address)], bh).message;
+  const msg = Buffer.from(vm.runInContext(`fundMessage(${JSON.stringify(payer.address)}, ${JSON.stringify(vault.address)}, ${JSON.stringify(bh)}, 540000000, 'autoplay:v1:${parsed.hash}')`, ctx));
+  const srvMsg = S.compileLegacy(payer.address, [S.ix.transfer(payer.address, vault.address, 540000000), S.ix.memo('autoplay:v1:' + parsed.hash, payer.address)], bh).message;
   ok(Buffer.compare(msg, srvMsg) === 0, 'browser-built message is byte-identical to the server compiler');
   const signed = S.assemble(msg, [payer.address], [payer]); const sim = await S.simulate(signed, true);
   ok(JSON.stringify(sim.err) === '"AccountNotFound"', 'mainnet accepts the signature and format (fails only because the test payer has no SOL): ' + JSON.stringify(sim.err));

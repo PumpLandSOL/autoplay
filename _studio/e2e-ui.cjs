@@ -16,7 +16,7 @@ let pass = 0, fail = 0; const ok = (c, m) => { c ? pass++ : fail++; console.log(
   const m = Buffer.from(S.b58dec(msgs[0])), keys = []; for (let i = 0; i < m[3]; i++) keys.push(S.b58enc(m.subarray(4 + 32 * i, 36 + 32 * i)));
   ok(keys[0] === user.address, 'payer = connected wallet');
   const lam = Number(m.readBigUInt64LE(4 + 32 * keys.length + 32 + 1 + 1 + 1 + 1 + 1 + 1 + 4)); ok(lam === 290_000_000, 'transfer amount = 0.29 SOL (' + lam + ')');
-  const memo = m.subarray(m.length - 76).toString(); ok(memo === 'patchbay:v1:' + fp, 'memo = patchbay:v1:<fingerprint>');
+  const memo = m.subarray(m.length - 76).toString(); ok(memo === 'autoplay:v1:' + fp, 'memo = autoplay:v1:<fingerprint>');
   ok(keys[2] === '11111111111111111111111111111111' && keys[3] === 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr', 'programs: System transfer + Memo');
   await sleep(32000); const err = await c.ev(`document.getElementById('lerr').textContent`); ok(/not found|failed/i.test(err), 'confirm refuses a signature that is not on-chain: "' + err.slice(0, 60) + '"');
   await c.shot('shots/launch-modal.png'); c.close(); console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

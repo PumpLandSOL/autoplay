@@ -18,7 +18,7 @@ r(`.hero h1{font-size:clamp(50px,7.6vw,118px)}.hero h1 span{color:var(--tom)}`, 
 .scope{display:block;width:min(820px,92%);height:46px;margin:14px auto 0;overflow:visible}
 .scope path{fill:none;stroke:#9cf7c6;stroke-width:2;filter:drop-shadow(0 0 4px rgba(25,201,138,.8))}
 .now{font-family:var(--mono);font-size:14px;color:#9cf7c6;margin-top:10px;min-height:20px;text-shadow:0 0 6px rgba(25,201,138,.5)}.now b{color:var(--mus);font-weight:500}`);
-r(` <div><div class="silk" style="color:#8d8372">// patchbay · on pump.fun</div>
+r(` <div><div class="silk" style="color:#8d8372">// autoplay · on pump.fun</div>
   <h1 class="disp" style="margin-top:16px">Coins that <span>play</span><br>themselves.</h1>`,
  ` <div><div class="kick"><span class="vu"><i></i><i></i><i></i><i></i></span>NOW PLAYING ON PUMP.FUN</div><br>
   <h1 class="disp" style="margin-top:22px"><span class="l1">Coins <em class="that">that</em> <span class="play">play<svg class="plug" viewBox="0 0 100 100"><path d="M10 92 C 10 40, 70 70, 80 -40" stroke="#0008" stroke-width="16" fill="none" transform="translate(3,4)"/><path d="M10 92 C 10 40, 70 70, 80 -40" stroke="#ff5a36" stroke-width="13" fill="none" stroke-linecap="round"/><path d="M10 92 C 10 40, 70 70, 80 -40" stroke="#fff6" stroke-width="4" fill="none" transform="translate(-2,-3)"/><circle cx="10" cy="92" r="15" fill="#d6cdb9" stroke="#77705f" stroke-width="5"/><circle cx="10" cy="92" r="6" fill="#0d0b09"/></svg></span></span><span class="l2" id="l2">themselves</span></h1>

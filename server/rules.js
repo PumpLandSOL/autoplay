@@ -1,4 +1,4 @@
-// PATCHBAY rules: a patch is trigger modules wired to action modules. Each wire carries a share of the
+// AUTOPLAY rules: a patch is trigger modules wired to action modules. Each wire carries a share of the
 // trigger's budget. A patch is canonicalized and SHA-256 fingerprinted; the fingerprint goes on-chain at launch.
 'use strict';
 const crypto = require('crypto');

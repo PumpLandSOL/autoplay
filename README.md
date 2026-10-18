@@ -1,4 +1,4 @@
-# PATCHBAY
+# AUTOPLAY
 
 **Coins that play themselves.** Patch triggers to actions with cables, launch on pump.fun in one signature, and the coin runs the patch forever on its own creator fees.
 
@@ -23,7 +23,7 @@ No dependencies. Node 20+.
 | `DATA_PATH` | `./data` | db + key file; mount a persistent disk here |
 | `MASTER_KEY` | generated into `DATA_PATH/.master` | 64 hex chars; encrypts vault keys |
 | `SOL_RPC` | public endpoints | comma-separated; use a keyed RPC (e.g. Helius) in production |
-| `SITE_URL` | `https://patchbay.fun` | used for self-hosted coin metadata when pump.fun IPFS is down |
+| `SITE_URL` | `https://autoplay.fun` | used for self-hosted coin metadata when pump.fun IPFS is down |
 | `RUN_MIN` | 10 | minutes between runs per coin |
 | `PRIORITY_SOL` / `SLIPPAGE` | 0.0001 / 15 | |
 

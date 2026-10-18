@@ -1,4 +1,4 @@
-// PATCHBAY: patch a coin together, it plays itself.
+// AUTOPLAY: patch a coin together, it plays itself.
 // A patch (triggers → wires → actions) is fingerprinted, signed on-chain by the creator, and run forever by the coin's own
 // vault: a keypair that is the coin's pump.fun creator, so creator fees land in it and pay for every rule.
 'use strict';
@@ -7,7 +7,7 @@ const S = require('./sol'), C = require('./chain'), R = require('./rules');
 
 const PORT = +process.env.PORT || 8258, DIR = process.env.DATA_PATH || path.join(__dirname, '..', 'data'), CLIENT = path.join(__dirname, '..', 'client');
 const RUN_MIN = +process.env.RUN_MIN || 10, RESERVE = 10_000_000, LAUNCH_COST = 30_000_000, MIN_ACTION = 1_000_000, MIN_FEES = 5_000_000, MAX_DEV_BUY = 5;
-const SITE = process.env.SITE_URL || 'https://patchbay.fun';
+const SITE = process.env.SITE_URL || 'https://autoplay.fun';
 fs.mkdirSync(DIR, { recursive: true });
 const DB = path.join(DIR, 'db.json');
 
@@ -31,7 +31,7 @@ D.hooks = D.hooks || {}; // mint → [{ id, url, secret, created, fails }]
 const PRIVATE_HOST = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.|\[|.*\.local$|.*\.internal$|.*\.localhost$)/i;
 function hookUrlOk(u) { try { const x = new URL(u); return x.protocol === 'https:' && !PRIVATE_HOST.test(x.hostname) && u.length <= 300; } catch { return false; } }
 function deliver(mint, row) { for (const h of D.hooks[mint] || []) { const body = JSON.stringify({ event: 'receipt', mint, receipt: row }), sig = crypto.createHmac('sha256', h.secret).update(body).digest('hex');
-  fetch(h.url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-patchbay-signature': 'sha256=' + sig, 'x-patchbay-event': 'receipt' }, body, redirect: 'manual', signal: AbortSignal.timeout(8000) })
+  fetch(h.url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-autoplay-signature': 'sha256=' + sig, 'x-autoplay-event': 'receipt' }, body, redirect: 'manual', signal: AbortSignal.timeout(8000) })
     .then((x) => { h.fails = x.ok ? 0 : (h.fails || 0) + 1; }).catch(() => { h.fails = (h.fails || 0) + 1; })
     .finally(() => { if (h.fails >= 50) D.hooks[mint] = D.hooks[mint].filter((y) => y !== h); save(); }); } }
 function receipt(coin, r) { const row = { id: crypto.randomBytes(5).toString('hex'), at: Date.now(), mint: coin.mint, ticker: coin.symbol, ...r }; D.receipts.unshift(row); if (D.receipts.length > 5000) D.receipts.length = 5000;
@@ -52,7 +52,7 @@ async function prepare(b) {
   const need = LAUNCH_COST + Math.round(devBuy * 1e9) + RESERVE;
   D.coins[id] = { id, status: 'awaiting-funds', name, symbol, description, uri, twitter, website, image: b.image, creator: b.creator, patch: r.patch, hash, devBuy, need,
     vault: vault.address, vaultKey: seal(vault.seed), mint: mint.address, mintKey: seal(mint.seed), created: Date.now(), trig: {} };
-  save(); return { id, vault: vault.address, mint: mint.address, need, hash, memo: 'patchbay:v1:' + hash };
+  save(); return { id, vault: vault.address, mint: mint.address, need, hash, memo: 'autoplay:v1:' + hash };
 }
 async function confirmLaunch(id, sig) {
   const c = D.coins[id]; if (!c) throw new Error('unknown launch'); if (c.status === 'live') return pub(c); if (c.status !== 'awaiting-funds') throw new Error('launch is ' + c.status);
@@ -65,13 +65,13 @@ async function confirmInner(c, sig) {
   if (!t || !t.ok) throw new Error('funding transaction not found or failed');
   if (coins().some((x) => x.fundSig === sig)) throw new Error('that transaction already funded a launch');
   if (t.signer !== c.creator) throw new Error('funding must be signed by the creator wallet');
-  if (t.memo !== 'patchbay:v1:' + c.hash) throw new Error('memo must carry the patch fingerprint');
+  if (t.memo !== 'autoplay:v1:' + c.hash) throw new Error('memo must carry the patch fingerprint');
   if (t.received < c.need) throw new Error('vault received ' + t.received / 1e9 + ' SOL, needs ' + c.need / 1e9);
   c.fundSig = sig; c.status = 'creating'; save();
   const vault = vaultOf(c), mint = S.keypair(open(c.mintKey));
   try { c.createSig = await C.createCoin(vault, mint, { name: c.name, symbol: c.symbol, uri: c.uri }, c.devBuy);
     // the vault itself signs the fingerprint too, binding mint ↔ patch on-chain
-    c.memoSig = await S.sendIxs(vault, [S.ix.memo('patchbay:v1:' + c.mint + ':' + c.hash, vault.address)], []).catch(() => null);
+    c.memoSig = await S.sendIxs(vault, [S.ix.memo('autoplay:v1:' + c.mint + ':' + c.hash, vault.address)], []).catch(() => null);
     c.status = 'live'; c.launched = Date.now(); c.nextRun = Date.now() + 60_000; delete c.image_pending; save();
     receipt(c, { kind: 'launch', ok: true, lamports: 0, sig: c.createSig, text: `$${c.symbol} launched on pump.fun` + (c.devBuy ? ` with a ${c.devBuy} SOL vault buy` : '') });
     return pub(c);
@@ -160,7 +160,7 @@ http.createServer(async (req, res) => {
       if (!c) return send(res, 404, { error: 'unknown coin' }); if (!hookUrlOk(url)) return send(res, 400, { error: 'url must be a public https URL' });
       const list = D.hooks[mint] = D.hooks[mint] || []; if (list.length >= 20) return send(res, 400, { error: 'this coin already has 20 webhooks' });
       const h = { id: crypto.randomBytes(6).toString('hex'), url, secret: crypto.randomBytes(24).toString('hex'), created: Date.now(), fails: 0 }; list.push(h); save();
-      return send(res, 200, { id: h.id, mint, url, secret: h.secret, note: 'verify x-patchbay-signature = sha256=HMAC_SHA256(secret, raw body). The secret is shown once.' }); }
+      return send(res, 200, { id: h.id, mint, url, secret: h.secret, note: 'verify x-autoplay-signature = sha256=HMAC_SHA256(secret, raw body). The secret is shown once.' }); }
     if (p === '/api/webhooks' && req.method === 'DELETE') { const { mint, id, secret } = await body(req, 4000); const list = D.hooks[mint] || [], h = list.find((x) => x.id === id && x.secret === secret);
       if (!h) return send(res, 404, { error: 'not found' }); D.hooks[mint] = list.filter((x) => x !== h); save(); return send(res, 200, { ok: true }); }
     if (p === '/api/coins') return send(res, 200, { coins: live().sort((a, b) => (b.launched || 0) - (a.launched || 0)).slice(0, 100).map(pub) });
@@ -187,5 +187,5 @@ http.createServer(async (req, res) => {
     if (!fp.startsWith(CLIENT) || !fs.existsSync(fp) || fs.statSync(fp).isDirectory()) { res.writeHead(404, { 'content-type': 'text/plain' }); return res.end('not found'); }
     res.writeHead(200, { 'content-type': MIME[path.extname(fp)] || 'application/octet-stream' }); fs.createReadStream(fp).pipe(res);
   } catch (e) { send(res, 500, { error: String(e.message || e) }); }
-}).listen(PORT, () => console.log('PATCHBAY on :' + PORT, '· coins', coins().length, '· rpc', S.RPCS[0]));
+}).listen(PORT, () => console.log('AUTOPLAY on :' + PORT, '· coins', coins().length, '· rpc', S.RPCS[0]));
 module.exports = { runCoin, D };

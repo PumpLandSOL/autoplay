@@ -42,7 +42,7 @@ const M = { '#': '<div class="mini"><span class="hashrun" id="hash">sha256 …</
 s = s.replace(/<div class="plate"><i style="background:[^"]+">([^<]+)<\/i><div>/g, (m, ic) => { if (!M[ic]) throw new Error('icon ' + ic); return '<div class="plate rv">' + M[ic] + '<div>'; });
 r(`<div class="plate rc" onclick=`, `<div class="plate rc rv" onclick=`);
 r(`heroLayout();`, `// step 2: the funding memo types out and gets signed, on a loop
-(function sigLoop() { const L = ['› transfer 0.29 SOL → vault', '› memo patchbay:v1:a4f1c09e7b2d…', '› sign · ed25519', '› vault creates $PLAY on pump.fun', '✓ live, playing its patch']; let i = 0, c = 0;
+(function sigLoop() { const L = ['› transfer 0.29 SOL → vault', '› memo autoplay:v1:a4f1c09e7b2d…', '› sign · ed25519', '› vault creates $PLAY on pump.fun', '✓ live, playing its patch']; let i = 0, c = 0;
   setInterval(() => { c += 2; if (i < L.length && c > L[i].length) { i++; c = 0; } else if (i >= L.length && ++c > 60) { i = 0; c = 0; }
     $('sig').innerHTML = L.slice(0, i).map(esc).join('<br>') + (i > 0 && i < L.length ? '<br>' : '') + (i < L.length ? esc(L[i].slice(0, c)) : '') + '<span class="cur"></span>'; }, 55); })();
 setInterval(() => { const h = [...crypto.getRandomValues(new Uint8Array(6))].map((b) => b.toString(16).padStart(2, '0')).join(''); $('hash').textContent = 'sha256 ' + h + '…'; }, 140);

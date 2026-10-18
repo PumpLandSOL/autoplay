@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PATCHBAY embed</title><link rel="stylesheet" href="/patch.css">
+<title>AUTOPLAY embed</title><link rel="stylesheet" href="/patch.css">
 <style>body{background:#14110e;background-image:none;padding:12px}.e{padding:22px 16px 14px;max-width:560px;margin:0 auto}.h{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center}.h img{width:48px;height:48px;border-radius:8px;border:2px solid var(--ink);object-fit:cover}
 .sym{font-family:var(--disp);font-weight:900;font-size:20px}.rules{margin:10px 0 0 16px;font-size:13px;line-height:1.45;color:var(--ink2)}.lc{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}.lc .lcd{padding:8px 10px}.lc .k{font-size:9px;letter-spacing:.14em;opacity:.75}.lc .v{font-size:15px;font-weight:600;margin-top:2px}
 .rc{font-family:var(--mono);font-size:11.5px;padding:7px 0;border-bottom:1px dashed #cfc5af;display:flex;justify-content:space-between;gap:8px}.rc:last-child{border:0}.ft{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--ink3)}</style></head><body>
@@ -11,6 +11,6 @@ async function load() { let c; try { c = await api('/api/coin/' + encodeURICompo
    <ul class="rules">${c.rules.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>
    <div class="lc">${[['MCAP', c.market ? usd(c.market.mcap) : '—'], ['FEES', solFmt(c.feesTotal) + ' SOL'], ['BOUGHT BACK', solFmt(c.boughtBack) + ' SOL']].map(([k, v]) => `<div class="lcd"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div>
    <div style="margin-top:10px">${c.receipts.slice(0, 4).map((r) => `<div class="rc"><span>${esc(r.text)}</span><span>${r.sig ? `<a target="_blank" href="${tx(r.sig)}">tx ↗</a>` : ''} ${ago(r.at)}</span></div>`).join('') || '<div class="rc"><span>no receipts yet</span></div>'}</div>
-   <div class="ft"><a target="_blank" href="/c/${c.mint}">open on PATCHBAY ↗</a><a target="_blank" href="/verify/${c.mint}">✓ verify</a></div>`; }
+   <div class="ft"><a target="_blank" href="/c/${c.mint}">open on AUTOPLAY ↗</a><a target="_blank" href="/verify/${c.mint}">✓ verify</a></div>`; }
 load(); setInterval(load, 20000);
 </script></body></html>

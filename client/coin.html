@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Coin · PATCHBAY</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
+<title>Coin · AUTOPLAY</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
 <style>
 .hdr{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;padding:40px 0 20px}
 .hdr img{width:96px;height:96px;border-radius:12px;border:3px solid var(--panel);object-fit:cover;background:#2a241e}
@@ -23,7 +23,7 @@ const MINT = decodeURIComponent(location.pathname.split('/c/')[1] || '');
 const KIND = { launch: ['#ff5a36', 'LAUNCH'], fees: ['#19c98a', 'FEES IN'], buyback: ['#ff5a36', 'BUYBACK'], burn: ['#ffc12e', 'BURN'], airdrop: ['#19c98a', 'AIRDROP'], lottery: ['#ff4fa3', 'RANDOM'], stock: ['#2f6bff', 'STOCK'], creator: ['#8c5cff', 'CREATOR'], keep: ['#8d8372', 'KEEP'] };
 let C = null, built = false;
 async function load() { try { C = await api('/api/coin/' + encodeURIComponent(MINT)); } catch (e) { $('m').innerHTML = `<div style="padding:80px 0"><h1 class="disp" style="font-size:44px">No coin here.</h1><p style="color:#b9ae9a;margin-top:12px">${esc(e.message)}</p><a class="btn hot" style="margin-top:20px" href="/build">Patch one →</a></div>`; return; }
-  document.title = '$' + C.symbol + ' · PATCHBAY'; if (!built) build(); fill(); }
+  document.title = '$' + C.symbol + ' · AUTOPLAY'; if (!built) build(); fill(); }
 function build() { built = true; const c = C;
   $('m').innerHTML = `<section class="hdr"><img src="${c.image}" alt=""><div><div class="silk" style="color:#8d8372"><span class="led g on"></span>&nbsp; ${c.status === 'live' ? 'playing its patch' : esc(c.status)}</div><h1 class="disp">$${esc(c.symbol)}</h1><div class="nm">${esc(c.name)}${c.description ? ' · ' + esc(c.description) : ''}</div>
    <div class="clinks"><a href="https://pump.fun/coin/${c.mint}" target="_blank">pump.fun ↗</a><a href="${acct(c.mint)}" target="_blank">mint ${short(c.mint)} ↗</a><a href="${acct(c.vault)}" target="_blank">vault ${short(c.vault)} ↗</a><a href="https://dexscreener.com/solana/${c.mint}" target="_blank">chart ↗</a><a href="/verify/${c.mint}" style="color:var(--min);border-color:var(--min)">✓ verify the patch</a></div></div>
@@ -32,7 +32,7 @@ function build() { built = true; const c = C;
   <div class="grid"><div><div class="rackv"><div id="patch"></div></div><div class="feed" id="rc"></div></div>
    <div style="display:grid;gap:14px"><div class="plate pad"><div class="silk">what this coin does · forever</div><ul class="rules">${c.rules.map((r) => `<li>${esc(r)}</li>`).join('')}</ul><div class="cd" id="cd"></div></div>
     <div class="plate pad"><div class="silk">the vault · this coin's creator wallet</div><div id="vh" style="margin-top:10px;font-family:var(--mono);font-size:13.5px;line-height:1.9"></div>
-     <p style="font-size:13px;color:var(--ink2);line-height:1.55;margin-top:10px">The vault is the coin's pump.fun creator, so creator fees land here. It only ever does what the patch says. Its key is held by the PATCHBAY executor; every move is on-chain and listed on the left.</p></div>
+     <p style="font-size:13px;color:var(--ink2);line-height:1.55;margin-top:10px">The vault is the coin's pump.fun creator, so creator fees land here. It only ever does what the patch says. Its key is held by the AUTOPLAY executor; every move is on-chain and listed on the left.</p></div>
     <div class="plate pad"><div class="silk">fingerprint · sha-256 of the patch</div><div class="vf"><span class="led g on"></span>${c.hash}</div>
      <p style="font-size:13px;color:var(--ink2);line-height:1.55;margin-top:10px">Signed into the launch by ${short(c.creator)} ${c.fundSig ? `(<a style="text-decoration:underline" href="${tx(c.fundSig)}" target="_blank">tx</a>)` : ''} and by the vault ${c.memoSig ? `(<a style="text-decoration:underline" href="${tx(c.memoSig)}" target="_blank">tx</a>)` : ''}.</p></div></div></div>`;
   window.copy = (v) => navigator.clipboard.writeText(v).then(() => toast('Copied')); }

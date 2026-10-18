@@ -6,7 +6,7 @@ D.hooks = D.hooks || {}; // mint → [{ id, url, secret, created, fails }]
 const PRIVATE_HOST = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|0\.|\[?::1\]?|.*\.local$|.*\.internal$)/i;
 function hookUrlOk(u) { try { const x = new URL(u); return x.protocol === 'https:' && !PRIVATE_HOST.test(x.hostname) && u.length <= 300; } catch { return false; } }
 function deliver(mint, row) { for (const h of D.hooks[mint] || []) { const body = JSON.stringify({ event: 'receipt', mint, receipt: row }), sig = crypto.createHmac('sha256', h.secret).update(body).digest('hex');
-  fetch(h.url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-patchbay-signature': 'sha256=' + sig, 'x-patchbay-event': 'receipt' }, body, redirect: 'manual', signal: AbortSignal.timeout(8000) })
+  fetch(h.url, { method: 'POST', headers: { 'content-type': 'application/json', 'x-autoplay-signature': 'sha256=' + sig, 'x-autoplay-event': 'receipt' }, body, redirect: 'manual', signal: AbortSignal.timeout(8000) })
     .then((x) => { h.fails = x.ok ? 0 : (h.fails || 0) + 1; }).catch(() => { h.fails = (h.fails || 0) + 1; })
     .finally(() => { if (h.fails >= 50) D.hooks[mint] = D.hooks[mint].filter((y) => y !== h); save(); }); } }
 function receipt(coin, r) {`);
@@ -16,7 +16,7 @@ r(`    if (p === '/api/coins') return send(res, 200, { coins: live().sort(`, `  
       if (!c) return send(res, 404, { error: 'unknown coin' }); if (!hookUrlOk(url)) return send(res, 400, { error: 'url must be a public https URL' });
       const list = D.hooks[mint] = D.hooks[mint] || []; if (list.length >= 20) return send(res, 400, { error: 'this coin already has 20 webhooks' });
       const h = { id: crypto.randomBytes(6).toString('hex'), url, secret: crypto.randomBytes(24).toString('hex'), created: Date.now(), fails: 0 }; list.push(h); save();
-      return send(res, 200, { id: h.id, mint, url, secret: h.secret, note: 'verify x-patchbay-signature = sha256=HMAC_SHA256(secret, raw body). The secret is shown once.' }); }
+      return send(res, 200, { id: h.id, mint, url, secret: h.secret, note: 'verify x-autoplay-signature = sha256=HMAC_SHA256(secret, raw body). The secret is shown once.' }); }
     if (p === '/api/webhooks' && req.method === 'DELETE') { const { mint, id, secret } = await body(req, 4000); const list = D.hooks[mint] || [], h = list.find((x) => x.id === id && x.secret === secret);
       if (!h) return send(res, 404, { error: 'not found' }); D.hooks[mint] = list.filter((x) => x !== h); save(); return send(res, 200, { ok: true }); }
     if (p === '/api/coins') return send(res, 200, { coins: live().sort(`);
