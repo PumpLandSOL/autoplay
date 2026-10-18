@@ -19,6 +19,6 @@ services:
       - key: NODE_VERSION
         value: "22"
       - key: SITE_URL
-        sync: false
+        value: https://autoplaypad.net
       - key: SOL_RPC
         sync: false

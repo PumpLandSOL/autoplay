@@ -80,7 +80,7 @@ Every hour, send 20% of the vault to one random holder.</pre>
 
 <h2 id="embed">Embed <span class="k">/embed/&lt;mint&gt;</span></h2>
 <p>Put a live card for any coin on your own site: its patch, market cap, fees, recent receipts and a verify link. It refreshes every 20 seconds.</p>
-<pre>&lt;iframe src="https://autoplay.fun/embed/&lt;MINT&gt;" width="420" height="360" style="border:0;border-radius:12px"&gt;&lt;/iframe&gt;</pre>
+<pre>&lt;iframe src="https://autoplaypad.net/embed/&lt;MINT&gt;" width="420" height="360" style="border:0;border-radius:12px"&gt;&lt;/iframe&gt;</pre>
 
 <h2 id="launching">Launching</h2>
 <ol><li><b>Patch</b> on the bench, or start from a sentence.</li><li><b>Metadata:</b> name, ticker, image and links are published to pump.fun's IPFS. If that endpoint is unavailable, AUTOPLAY serves the standard metadata JSON itself at <code>/meta/&lt;id&gt;.json</code>, which pump.fun reads the same way.</li>
@@ -118,7 +118,7 @@ Every hour, send 20% of the vault to one random holder.</pre>
 
 <h2 id="webhooks">Webhooks</h2>
 <p>Get every receipt for a coin pushed to your server the moment it's written, for bots, dashboards or Telegram alerts.</p>
-<pre>curl -X POST https://autoplay.fun/api/webhooks \
+<pre>curl -X POST https://autoplaypad.net/api/webhooks \
   -H 'content-type: application/json' \
   -d '{"mint":"&lt;MINT&gt;","url":"https://your.server/hook"}'
 → { "id": "…", "secret": "…" }   (the secret is shown once)</pre>

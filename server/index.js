@@ -7,7 +7,7 @@ const S = require('./sol'), C = require('./chain'), R = require('./rules');
 
 const PORT = +process.env.PORT || 8258, DIR = process.env.DATA_PATH || path.join(__dirname, '..', 'data'), CLIENT = path.join(__dirname, '..', 'client');
 const RUN_MIN = +process.env.RUN_MIN || 10, RESERVE = 10_000_000, LAUNCH_COST = 30_000_000, MIN_ACTION = 1_000_000, MIN_FEES = 5_000_000, MAX_DEV_BUY = 5;
-const SITE = process.env.SITE_URL || 'https://autoplay.fun';
+const SITE = process.env.SITE_URL || 'https://autoplaypad.net';
 fs.mkdirSync(DIR, { recursive: true });
 const DB = path.join(DIR, 'db.json');
 
