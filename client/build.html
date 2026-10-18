@@ -1,0 +1,150 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Bench · PATCHBAY</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
+<meta property="og:title" content="Patch a coin together. It plays itself."><meta property="og:description" content="Wire triggers to actions with patch cables. Launch on pump.fun. Your coin runs the patch forever on its own creator fees.">
+<style>
+.head{padding:34px 0 18px;display:flex;gap:24px;align-items:end;flex-wrap:wrap}.head h1{font-size:clamp(34px,4.6vw,58px)}.head p{color:#b9ae9a;max-width:520px;line-height:1.55;font-size:15px}
+.say{display:flex;gap:10px;margin-top:6px}.say input{flex:1;background:#0e0c0a;border:2px solid #3a3229;border-radius:10px;color:var(--panel);font-family:var(--mono);font-size:14px;padding:14px 16px;outline:0}.say input:focus{border-color:var(--mus)}
+.ex{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.ex button{background:none;border:1.5px dashed #4a4036;color:#b9ae9a;font-family:var(--mono);font-size:11.5px;padding:6px 10px;border-radius:99px}.ex button:hover{color:var(--mus);border-color:var(--mus)}
+.bench{display:grid;grid-template-columns:176px 1fr 300px;gap:16px;align-items:start;margin-top:18px}
+.shelf{position:sticky;top:80px}.shelf h4{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:#8d8372;margin:14px 0 8px}
+.tile{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#201b16;border:1.5px solid #352d25;color:var(--panel);border-radius:9px;padding:9px 10px;margin-bottom:6px;font-size:13px}
+.tile:hover{border-color:var(--mus);transform:translateX(2px)}.tile i{font-style:normal;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:var(--panel);color:var(--ink);font-size:14px;flex:none}
+.rack{position:relative;background:#0f0d0b;border:2px solid #2c261f;border-radius:10px;overflow:hidden;min-height:640px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;padding:18px 14px;min-height:200px;position:relative;z-index:2}
+.row.t{border-bottom:1px dashed #2c261f}.row .lab{position:absolute;right:14px;top:8px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:#5b5246}
+.gap{height:130px}
+.mod{width:124px;padding:26px 10px 10px;user-select:none}.mod .nm{display:flex;align-items:center;gap:8px;font-family:var(--disp);font-weight:700;font-size:12.5px;letter-spacing:-.01em;line-height:1.1;margin-top:2px}
+.mod .nm i{font-style:normal;font-size:16px}.mod .x{position:absolute;top:4px;right:22px;background:none;border:0;color:#8d8372;font-size:15px}.mod .x:hover{color:var(--tom)}
+.mod .ledw{position:absolute;top:6px;left:24px}
+.fd{margin-top:10px}.fd .silk{display:flex;justify-content:space-between}.fd .silk b{color:var(--ink);font-weight:600}
+.fd input[type=range]{width:100%;accent-color:var(--ink);margin-top:4px}.fd select{width:100%;margin-top:4px;font-family:var(--mono);font-size:12px;padding:5px;border:1.5px solid var(--ink);border-radius:6px;background:var(--panel2)}
+.mod .jk{display:flex;align-items:center;gap:8px;margin-top:12px}.mod.act .jk{margin:0 0 8px}
+svg.cables{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}svg.cables path{pointer-events:stroke;cursor:pointer}
+.chip{position:absolute;z-index:4;transform:translate(-50%,-50%);background:var(--panel);color:var(--ink);font-family:var(--mono);font-weight:600;font-size:12px;border:2px solid var(--ink);border-radius:99px;padding:2px 8px;cursor:pointer;box-shadow:0 2px 0 var(--ink)}
+.chip input{width:44px;font:inherit;border:0;background:none;text-align:right;outline:0}
+.empty{position:absolute;inset:0;display:grid;place-items:center;color:#5b5246;font-family:var(--mono);font-size:13px;text-align:center;z-index:1;pointer-events:none}
+.side{position:sticky;top:80px;display:grid;gap:12px}.side .plate{padding:24px 18px 18px}
+.rules li{margin:8px 0 0 16px;font-size:14px;line-height:1.45}.err{color:#c4321a;font-family:var(--mono);font-size:12.5px;margin-top:8px}
+.fp{font-family:var(--mono);font-size:11px;word-break:break-all;color:var(--ink2);margin-top:6px}
+.split{display:flex;height:22px;border-radius:5px;overflow:hidden;border:2px solid var(--ink);margin-top:8px}.split div{height:100%}
+.legend{display:grid;gap:4px;margin-top:8px;font-family:var(--mono);font-size:11.5px}.legend span{display:flex;align-items:center;gap:7px}.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+/* launch modal */
+.modal{position:fixed;inset:0;background:rgba(10,8,6,.78);backdrop-filter:blur(6px);z-index:60;display:none;align-items:center;justify-content:center;padding:20px}.modal.on{display:flex}
+.mcard{width:min(640px,100%);max-height:92vh;overflow:auto;padding:30px 26px 24px}
+.mcard label{display:block;margin-top:12px}.mcard input,.mcard textarea{width:100%;margin-top:5px;font-family:var(--mono);font-size:13.5px;padding:10px 11px;border:2px solid var(--ink);border-radius:8px;background:#f6f0e2;color:var(--ink);outline:0}
+.mcard textarea{height:64px;resize:vertical}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.steps{margin-top:16px;display:grid;gap:8px}.steps div{display:flex;gap:10px;align-items:center;font-family:var(--mono);font-size:12.5px}
+.img{display:flex;gap:12px;align-items:center;margin-top:6px}.img img{width:64px;height:64px;border-radius:8px;border:2px solid var(--ink);object-fit:cover;background:#ddd}
+@media(max-width:1100px){.bench{grid-template-columns:1fr}.shelf,.side{position:static}.shelf{display:flex;flex-wrap:wrap;gap:6px}.shelf h4{width:100%}.tile{width:auto}}
+</style></head><body>
+<main class="wrap">
+<section class="head"><div style="flex:1;min-width:300px"><div class="silk" style="color:#8d8372">// the bench</div><h1 class="disp" style="margin-top:8px">Patch your coin.</h1>
+ <div class="say"><input id="say" placeholder="say it in one line: buy back half and burn it, airdrop the rest to the top 20" autocomplete="off"><button class="btn hot" id="sayb">Patch it</button></div>
+ <div class="ex" id="ex"></div></div>
+ <p>Drag from a trigger's <b>OUT</b> jack to an action's <b>IN</b> jack. The number on each cable is its share of the trigger's SOL. When you launch, the coin's vault is its pump.fun creator: fees land there and pay for every rule, forever.</p></section>
+<div class="bench">
+ <aside class="shelf" id="shelf"></aside>
+ <div class="rack" id="rack"><div class="row t" id="rowT"><span class="lab">TRIGGERS · OUT ↓</span></div><div class="gap"></div><div class="row a" id="rowA"><span class="lab">ACTIONS · IN ↑</span></div>
+  <svg class="cables" id="cab"></svg><div class="empty" id="empty">add modules from the shelf,<br>or type a sentence above</div></div>
+ <aside class="side">
+  <div class="plate"><div class="silk">readout · what this coin will do</div><ul class="rules" id="rules"></ul><div class="err" id="err"></div></div>
+  <div class="plate"><div class="silk">if 1 SOL of creator fees arrives</div><div class="split" id="split"></div><div class="legend" id="legend"></div></div>
+  <div class="plate"><div class="silk" style="display:flex;justify-content:space-between">fingerprint · sha-256 <span id="fpled" class="led g"></span></div><div class="fp" id="fp">—</div>
+   <p style="font-size:12.5px;color:var(--ink2);margin-top:8px;line-height:1.5">This hash goes on-chain in your launch transaction. Anyone can recompute it from the rules.</p>
+   <button class="btn hot" style="width:100%;justify-content:center;margin-top:12px" id="launch">Launch this coin →</button></div>
+ </aside>
+</div>
+</main>
+<div class="modal" id="lm"><div class="plate mcard">
+ <div style="display:flex;justify-content:space-between;align-items:center"><div class="disp" style="font-size:26px">Launch on pump.fun</div><button class="btn" onclick="$('lm').classList.remove('on')">✕</button></div>
+ <div class="g2"><label><span class="silk">Name</span><input id="nm" maxlength="32" placeholder="Self Driving Coin"></label><label><span class="silk">Ticker</span><input id="tk" maxlength="10" placeholder="DRIVE"></label></div>
+ <label><span class="silk">Description</span><textarea id="ds" maxlength="500" placeholder="what is this coin about"></textarea></label>
+ <label><span class="silk">Image</span><div class="img"><img id="pv" alt=""><input type="file" id="im" accept="image/png,image/jpeg,image/gif,image/webp" style="border:0;background:none;padding:0"></div></label>
+ <div class="g2"><label><span class="silk">X / Twitter (optional)</span><input id="tw" placeholder="https://x.com/…"></label><label><span class="silk">Website (optional)</span><input id="wb" placeholder="https://…"></label></div>
+ <label><span class="silk" style="display:flex;justify-content:space-between">Vault buy at launch <b id="dbv">0.1 SOL</b></span><input type="range" id="db" min="0" max="5" step="0.05" value="0.1" style="accent-color:var(--tom)"></label>
+ <p style="font-size:12.5px;color:var(--ink2);line-height:1.5;margin-top:6px">The vault buys first, so it holds coins from block one (that's what Burn burns). You send <b id="tot">—</b>: the vault buy + 0.03 SOL to create the coin + 0.01 SOL kept for gas. One signature; the memo carries your patch's fingerprint.</p>
+ <div class="steps" id="st"></div>
+ <button class="btn hot" style="width:100%;justify-content:center;margin-top:16px;padding:15px" id="go">Connect wallet</button>
+ <div class="err" id="lerr"></div>
+</div></div>
+<script src="/common.js"></script><script>
+chrome('/build');
+let CAT = null, P = { triggers: [], actions: [], wires: [] }, N = 0, drag = null;
+const TRIG = ['fees', 'every', 'mcap', 'pump', 'dump'], ACT = ['buyback', 'burn', 'airdrop', 'lottery', 'stock', 'creator', 'keep'];
+const EX = ['When fees come in, buy Tesla with half and airdrop the rest to holders.', 'buy back 60% and burn, 20% to the creator, keep the rest', 'Every hour, send 20% of the vault to one random holder.', 'When market cap passes $100k, burn 10% of the coin\'s tokens.'];
+$('ex').innerHTML = EX.map((e, i) => `<button onclick="sayEx(${i})">${esc(e)}</button>`).join('');
+window.sayEx = (i) => { $('say').value = EX[i]; say(); };
+function colorOf(w) { const i = P.wires.indexOf(w); return CABLES[i % CABLES.length]; }
+function add(type) { const isT = TRIG.includes(type), spec = (isT ? CAT.triggers : CAT.actions)[type], params = {};
+  for (const [k, s] of Object.entries(spec.params)) params[k] = Array.isArray(s[0]) ? s[0][0] : s[2];
+  (isT ? P.triggers : P.actions).push({ id: 'm' + (++N), type, params }); draw(); }
+function rm(id) { P.triggers = P.triggers.filter((m) => m.id !== id); P.actions = P.actions.filter((m) => m.id !== id); P.wires = P.wires.filter((w) => w.from !== id && w.to !== id); draw(); }
+function setP(id, k, v) { const m = P.triggers.concat(P.actions).find((x) => x.id === id); m.params[k] = isNaN(+v) ? v : +v; const o = document.querySelector(`[data-pv="${id}.${k}"]`); if (o) o.textContent = fmtP(k, m.params[k]); readout(); }
+const fmtP = (k, v) => k === 'usd' ? '$' + (+v).toLocaleString() : k === 'hours' ? v + 'h' : k === 'top' ? 'top ' + v : /pct/.test(k) ? v + '%' : v;
+const LBL = { hours: 'every', pctOfVault: 'of vault', usd: 'market cap', pct: 'move', pctOfHeld: 'of held coins', top: 'holders', ticker: 'stock' };
+function modHtml(m, isT) { const spec = (isT ? CAT.triggers : CAT.actions)[m.type];
+  const fad = Object.entries(spec.params).map(([k, s]) => Array.isArray(s[0]) ? `<div class="fd"><div class="silk">${LBL[k]}</div><select onchange="setP('${m.id}','${k}',this.value)">${s[0].map((o) => `<option ${o === m.params[k] ? 'selected' : ''}>${o}</option>`).join('')}</select></div>`
+    : `<div class="fd"><div class="silk">${LBL[k]} <b data-pv="${m.id}.${k}">${fmtP(k, m.params[k])}</b></div><input type="range" min="${s[0]}" max="${s[1]}" step="${k === 'usd' ? 10000 : 1}" value="${m.params[k]}" oninput="setP('${m.id}','${k}',this.value)"></div>`).join('');
+  const jack = `<div class="jk"><span class="jack" data-jack="${m.id}" data-io="${isT ? 'out' : 'in'}"></span><span class="silk">${isT ? 'OUT' : 'IN'}</span></div>`;
+  return `<div class="plate mod ${isT ? 'trg' : 'act'}" data-mod="${m.id}"><span class="led ${isT ? '' : 'g'} ledw" data-led="${m.id}"></span><button class="x" onclick="rm('${m.id}')">×</button>${isT ? '' : jack}<div class="nm"><i>${ICON[m.type]}</i>${spec.label}</div>${fad}${isT ? jack : ''}</div>`; }
+function draw() {
+  $('rowT').innerHTML = '<span class="lab">TRIGGERS · OUT ↓</span>' + P.triggers.map((m) => modHtml(m, true)).join('');
+  $('rowA').innerHTML = '<span class="lab">ACTIONS · IN ↑</span>' + P.actions.map((m) => modHtml(m, false)).join('');
+  $('empty').style.display = P.triggers.length + P.actions.length ? 'none' : ''; cables(); readout(); }
+function jackPos(id) { const j = document.querySelector(`[data-jack="${id}"]`), r = $('rack').getBoundingClientRect(); if (!j) return null; const b = j.getBoundingClientRect(); return [b.left - r.left + b.width / 2, b.top - r.top + b.height / 2]; }
+// cables fan out of a jack: k-th of n cables leaves with its own horizontal lean so they never stack
+const curve = ([x1, y1], [x2, y2], k = 0, n = 1) => { const lean = (k - (n - 1) / 2) * 26, sag = Math.max(50, Math.abs(x2 - x1) * .22 + 60); return `M${x1},${y1} C${x1 + lean},${y1 + sag} ${x2},${y2 - sag + 20} ${x2},${y2}`; };
+const midOf = ([x1, y1], [x2, y2], k, n) => { const lean = (k - (n - 1) / 2) * 26; return [(x1 + x2) / 2 + lean * .6, (y1 + y2) / 2 + 6 + (k % 2) * 30]; };
+function cables() { const svg = $('cab'); document.querySelectorAll('.chip').forEach((c) => c.remove()); let h = '';
+  for (const w of P.wires) { const a = jackPos(w.from), b = jackPos(w.to); if (!a || !b) continue; const sib = P.wires.filter((x) => x.from === w.from).sort((p, q) => (jackPos(p.to) || [0])[0] - (jackPos(q.to) || [0])[0]), k = sib.indexOf(w), col = colorOf(w), d = curve(a, b, k, sib.length), mid = midOf(a, b, k, sib.length);
+    h += `<path d="${d}" stroke="#0007" stroke-width="9" fill="none" transform="translate(0,4)"/><path d="${d}" stroke="${col}" stroke-width="7" fill="none" stroke-linecap="round" onclick="unwire('${w.from}','${w.to}')"/><path d="${d}" stroke="#fff6" stroke-width="2" fill="none" transform="translate(-1,-2)" style="pointer-events:none"/>`;
+    const isTok = CAT.actions[(P.actions.find((x) => x.id === w.to) || {}).type]?.tokens;
+    if (!isTok) { const c = document.createElement('div'); c.className = 'chip'; c.style.left = Math.max(34, mid[0]) + 'px'; c.style.top = mid[1] + 'px'; c.style.borderColor = col; c.innerHTML = `<input value="${w.share}" inputmode="numeric">%`;
+      c.querySelector('input').onchange = (e) => { w.share = Math.max(1, Math.min(100, +e.target.value || 1)); readout(); }; $('rack').append(c); } }
+  if (drag && drag.to) { const a = jackPos(drag.from); if (a) h += `<path d="${curve(a, drag.to)}" stroke="${CABLES[P.wires.length % CABLES.length]}" stroke-width="7" fill="none" stroke-linecap="round" opacity=".8" stroke-dasharray="2 10"/>`; }
+  svg.innerHTML = h; }
+window.unwire = (f, t) => { if (!confirm('Unplug this cable?')) return; P.wires = P.wires.filter((w) => !(w.from === f && w.to === t)); draw(); };
+$('rack').addEventListener('pointerdown', (e) => { const j = e.target.closest('[data-io="out"]'); if (!j) return; e.preventDefault(); drag = { from: j.dataset.jack }; });
+addEventListener('pointermove', (e) => { if (!drag) return; const r = $('rack').getBoundingClientRect(); drag.to = [e.clientX - r.left, e.clientY - r.top]; cables(); });
+addEventListener('pointerup', (e) => { if (!drag) return; const el = document.elementFromPoint(e.clientX, e.clientY), j = el && el.closest('[data-io="in"]');
+  if (j && !P.wires.some((w) => w.from === drag.from && w.to === j.dataset.jack)) { const used = P.wires.filter((w) => w.from === drag.from).reduce((s, w) => s + w.share, 0);
+    P.wires.push({ from: drag.from, to: j.dataset.jack, share: Math.max(1, Math.min(100, 100 - used || 10)) }); }
+  drag = null; draw(); });
+addEventListener('resize', cables);
+let rt = 0; async function readout() { clearTimeout(rt); rt = setTimeout(async () => {
+  document.querySelectorAll('[data-led]').forEach((l) => l.classList.toggle('on', P.wires.some((w) => w.from === l.dataset.led || w.to === l.dataset.led)));
+  if (!P.triggers.length || !P.actions.length) { $('rules').innerHTML = '<li style="color:var(--ink3)">nothing patched yet</li>'; $('err').textContent = ''; $('fp').textContent = '—'; $('fpled').classList.remove('on'); split(null); return; }
+  try { const r = await api('/api/validate', { patch: P }); $('rules').innerHTML = r.rules.map((x) => `<li>${esc(x)}</li>`).join(''); $('err').textContent = ''; $('fp').textContent = r.hash; $('fpled').classList.add('on'); split(r.patch);
+    const local = await sha256hex(canon(r.patch)); if (local !== r.hash) $('err').textContent = 'fingerprint mismatch between browser and server'; window.VALID = r.patch; }
+  catch (e) { $('err').textContent = e.message; $('fp').textContent = '—'; $('fpled').classList.remove('on'); window.VALID = null; split(null); } }, 160); }
+function split(p) { const t = p && p.triggers.find((x) => x.type === 'fees'); if (!t) { $('split').innerHTML = '<div style="flex:1;background:var(--panel2)"></div>'; $('legend').innerHTML = '<span style="color:var(--ink3)">no "Creator fees arrive" trigger patched</span>'; return; }
+  const ws = p.wires.filter((w) => w.from === t.id && w.share > 0), used = ws.reduce((s, w) => s + w.share, 0), A = new Map(p.actions.map((a) => [a.id, a]));
+  const rows = ws.map((w) => [CAT.actions[A.get(w.to).type].label + (A.get(w.to).params.ticker ? ' ' + A.get(w.to).params.ticker : ''), w.share, colorOf(P.wires.find((x) => x.from === w.from && x.to === w.to) || w)]).concat(used < 100 ? [['stays in vault', 100 - used, '#cfc5af']] : []);
+  $('split').innerHTML = rows.map(([, s, c]) => `<div style="flex:${s};background:${c}"></div>`).join(''); $('legend').innerHTML = rows.map(([l, s, c]) => `<span><i style="background:${c}"></i>${(s / 100).toFixed(2)} SOL · ${esc(l)}</span>`).join(''); }
+async function say() { const t = $('say').value.trim(); if (!t) return; try { const r = await api('/api/parse', { text: t }); P = JSON.parse(JSON.stringify(r.patch)); N = 20 + P.triggers.length + P.actions.length; P.triggers.concat(P.actions).forEach((m, i) => { m.id = 'm' + (i + 1); }); remap(r.patch); draw(); toast('Patched from your sentence. Tweak anything.'); } catch (e) { toast(e.message); } }
+function remap(orig) { const ids = orig.triggers.concat(orig.actions).map((m) => m.id); P.wires = orig.wires.map((w) => ({ from: 'm' + (ids.indexOf(w.from) + 1), to: 'm' + (ids.indexOf(w.to) + 1), share: w.share })); }
+$('sayb').onclick = say; $('say').onkeydown = (e) => { if (e.key === 'Enter') say(); };
+// ---------- launch ----------
+let IMG = null;
+$('im').onchange = () => { const f = $('im').files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { const im = new Image(); im.onload = () => { const s = 512, c = document.createElement('canvas'); c.width = c.height = s; const x = c.getContext('2d'), k = Math.max(s / im.width, s / im.height);
+  x.drawImage(im, (s - im.width * k) / 2, (s - im.height * k) / 2, im.width * k, im.height * k); IMG = c.toDataURL('image/png'); if (IMG.length > 1_400_000) IMG = c.toDataURL('image/jpeg', .86); $('pv').src = IMG; }; im.src = rd.result; }; rd.readAsDataURL(f); };
+const cost = () => +$('db').value + 0.04; $('db').oninput = () => { $('dbv').textContent = (+$('db').value).toFixed(2) + ' SOL'; $('tot').textContent = cost().toFixed(2) + ' SOL'; }; $('db').oninput();
+const STEPS = ['Upload image + metadata to pump.fun IPFS', 'Sign one transaction: fund the vault, memo = fingerprint', 'Vault creates the coin on pump.fun', 'Live: the vault runs your patch'];
+const steps = (k, bad) => { $('st').innerHTML = STEPS.map((s, i) => `<div><span class="led ${i < k ? 'g on' : i === k ? (bad ? 'on' : 'g on') : ''}" style="${i === k && !bad ? 'animation:bl 1s infinite' : ''}"></span>${s}</div>`).join('') + '<style>@keyframes bl{50%{opacity:.25}}</style>'; };
+$('launch').onclick = () => { if (!window.VALID) return toast('Fix the patch first'); $('lm').classList.add('on'); steps(-1); goBtn(); };
+const goBtn = () => { $('go').textContent = WALLET ? 'Launch · ' + cost().toFixed(2) + ' SOL' : 'Connect wallet'; };
+document.addEventListener('wallet', goBtn);
+let PENDING = null; // a funding tx that was sent but not yet confirmed: retry confirm instead of paying twice
+$('go').onclick = async () => { $('lerr').textContent = ''; if (!WALLET) { await connect(); return goBtn(); }
+  if (PENDING) { $('go').disabled = true; try { steps(2); const c = await api('/api/launch/confirm', PENDING); PENDING = null; steps(4); toast('$' + c.symbol + ' is live'); setTimeout(() => location.href = '/c/' + c.mint, 900); } catch (e) { $('lerr').textContent = e.message + ' · your SOL is safe in the vault; retry, or it is refunded automatically within 2h'; steps(2, true); } $('go').disabled = false; return; }
+  const b = { patch: window.VALID, name: $('nm').value.trim(), symbol: $('tk').value.trim(), description: $('ds').value.trim(), image: IMG, twitter: $('tw').value.trim(), website: $('wb').value.trim(), devBuy: +$('db').value, creator: WALLET };
+  $('go').disabled = true; try { steps(0); const pr = await api('/api/launch/prepare', b);
+    steps(1); const sig = await sendFunding(pr.vault, pr.need, pr.memo); PENDING = { id: pr.id, sig };
+    steps(2); const c = await api('/api/launch/confirm', { id: pr.id, sig }); PENDING = null; steps(4); toast('$' + c.symbol + ' is live'); setTimeout(() => location.href = '/c/' + c.mint, 900);
+  } catch (e) { $('lerr').textContent = (e.message || String(e)) + (PENDING ? ' · your SOL is safe in the vault; press Retry, or it is refunded automatically within 2h' : ''); if (PENDING) $('go').textContent = 'Retry confirm'; const k = [...$('st').querySelectorAll('.led')].findIndex((l) => l.style.animation); steps(Math.max(0, k), true); }
+  $('go').disabled = false; };
+// ---------- boot ----------
+(async () => { CAT = await api('/api/catalog');
+  $('shelf').innerHTML = '<h4>TRIGGERS</h4>' + TRIG.map((t) => `<button class="tile" onclick="add('${t}')" title="${esc(CAT.triggers[t].desc)}"><i>${ICON[t]}</i>${CAT.triggers[t].label}</button>`).join('') + '<h4>ACTIONS</h4>' + ACT.map((t) => `<button class="tile" onclick="add('${t}')" title="${esc(CAT.actions[t].desc)}"><i>${ICON[t]}</i>${CAT.actions[t].label}</button>`).join('');
+  const q = new URLSearchParams(location.search).get('say'); if (q) { $('say').value = q; say(); } else { $('say').value = EX[1]; say(); } })();
+</script></body></html>

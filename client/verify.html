@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verify · PATCHBAY</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
+<style>.hd{padding:44px 0 18px}.hd h1{font-size:clamp(36px,5vw,64px)}.ck{display:grid;gap:12px;margin-top:10px}.ck .plate{padding:26px 22px 20px;display:grid;grid-template-columns:34px 1fr;gap:14px}
+.ok,.no{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:900;color:#fff}.ok{background:var(--ok)}.no{background:var(--led)}.wait{background:#b8ad97}
+.ck b{font-family:var(--disp);font-size:16px}.ck p{color:var(--ink2);font-size:13.5px;line-height:1.55;margin-top:5px}.ck code{font-family:var(--mono);font-size:12px;word-break:break-all;color:var(--ink);background:var(--panel2);padding:2px 6px;border-radius:4px}
+pre{background:#0e0c0a;color:#c9bfab;border:2px solid #2c261f;border-radius:10px;padding:16px;font-family:var(--mono);font-size:12px;overflow:auto;margin-top:16px;white-space:pre-wrap;word-break:break-all}</style></head><body>
+<main class="wrap"><section class="hd"><div class="silk" style="color:#8d8372">// verify, don't trust</div><h1 class="disp" style="margin-top:8px">Check the patch.</h1><p style="color:#b9ae9a;margin-top:10px;max-width:720px;line-height:1.55">This page recomputes the patch fingerprint in your browser and compares it with the memos written on Solana at launch. If the rules shown anywhere changed, these checks fail.</p></section>
+<div class="ck" id="ck"></div><pre id="pre"></pre></main>
+<script src="/common.js"></script><script>chrome('/coins');
+const MINT = decodeURIComponent(location.pathname.split('/verify/')[1] || '');
+const row = (ok, t, d) => `<div class="plate"><span class="${ok === null ? 'ok wait' : ok ? 'ok' : 'no'}">${ok === null ? '…' : ok ? '✓' : '✗'}</span><div><b>${t}</b><p>${d}</p></div></div>`;
+(async () => { let v; try { v = await api('/api/verify/' + encodeURIComponent(MINT)); } catch (e) { $('ck').innerHTML = row(false, 'Not found', esc(e.message)); return; }
+  const local = await sha256hex(canon(v.patch)), memo1 = 'patchbay:v1:' + local, memo2 = 'patchbay:v1:' + v.mint + ':' + local;
+  $('ck').innerHTML = [
+    row(local === v.hash, 'Your browser computed the same fingerprint', `SHA-256 of the canonical patch, computed here: <code>${local}</code>`),
+    row(!!v.fund && v.fund.memo === memo1 && v.fund.signer === v.creator, 'The creator signed it into the launch', v.fund ? `Memo <code>${esc(v.fund.memo)}</code> in a transaction signed by <code>${v.fund.signer}</code> that paid the vault ${(v.fund.received / 1e9).toFixed(4)} SOL. <a style="text-decoration:underline" target="_blank" href="${tx(v.fund.sig)}">view ↗</a>` : 'funding transaction not found'),
+    row(!!v.vaultMemo && v.vaultMemo.memo === memo2 && v.vaultMemo.signer === v.vault, 'The vault signed it, bound to this mint', v.vaultMemo ? `Memo <code>${esc(v.vaultMemo.memo)}</code> signed by the vault <code>${v.vault}</code>. <a style="text-decoration:underline" target="_blank" href="${tx(v.vaultMemo.sig)}">view ↗</a>` : 'vault memo not found'),
+    row(!!v.createSig, 'The vault created the coin', `pump.fun create transaction signed by the vault, so the vault is the coin's creator and receives its creator fees. <a style="text-decoration:underline" target="_blank" href="${tx(v.createSig)}">view ↗</a>`),
+  ].join('');
+  $('pre').textContent = '// canonical patch (sorted keys, no whitespace), the exact bytes that were hashed\n' + canon(v.patch); })();
+</script></body></html>

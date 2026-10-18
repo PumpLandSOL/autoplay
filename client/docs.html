@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How it works · PATCHBAY</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
+<style>.doc{display:grid;grid-template-columns:220px 1fr;gap:40px;padding:44px 0}.toc{position:sticky;top:90px;align-self:start;font-family:var(--mono);font-size:12.5px;display:grid;gap:8px}.toc a{color:#8d8372}.toc a:hover{color:var(--mus)}
+.body h1{font-size:clamp(36px,5vw,64px)}.body h2{font-family:var(--disp);font-size:24px;letter-spacing:-.02em;margin:46px 0 12px}.body p,.body li{color:#c9bfab;font-size:15.5px;line-height:1.7;margin-top:10px}.body ul{margin-left:20px}
+.body b{color:var(--panel)}.body code{font-family:var(--mono);font-size:13px;background:#241f1a;padding:2px 6px;border-radius:4px;color:var(--mus)}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}td,th{text-align:left;padding:10px 8px;border-bottom:1px solid #2c261f;color:#c9bfab;vertical-align:top}th{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:#8d8372}td:first-child{color:var(--panel);font-weight:600;white-space:nowrap}
+@media(max-width:900px){.doc{grid-template-columns:1fr}.toc{position:static}}</style></head><body>
+<main class="wrap doc"><nav class="toc"><a href="#idea">The idea</a><a href="#launch">Launching</a><a href="#vault">The vault</a><a href="#runs">Runs</a><a href="#modules">Modules</a><a href="#verify">Verifying</a><a href="#costs">Costs</a><a href="#faq">FAQ</a></nav>
+<div class="body"><div class="silk" style="color:#8d8372">// how it works</div><h1 class="disp" style="margin-top:8px">The whole machine.</h1>
+<h2 id="idea">The idea</h2><p>A PATCHBAY coin is a normal pump.fun coin with one difference: its <b>creator is a vault</b>, not a person. pump.fun pays creator fees on every trade to the creator. So the fees from trading the coin land in the vault, and the vault spends them exactly the way the coin's patch says: buy back, burn, airdrop holders, pay a random holder, buy tokenized stocks, pay the creator, or keep it for later.</p>
+<p>The patch is fixed at launch. There is no edit endpoint. Its SHA-256 fingerprint is written on Solana twice, so anyone can check that the rules on the site are the rules the coin was launched with.</p>
+<h2 id="launch">Launching</h2><ul>
+<li><b>Patch.</b> Wire triggers to actions on the bench, or type a sentence and tweak the result. The bench shows exactly what 1 SOL of fees would do.</li>
+<li><b>Metadata.</b> Name, ticker, image and links are uploaded to pump.fun's IPFS, the same as any pump.fun launch.</li>
+<li><b>One signature.</b> Your wallet sends one transaction: a SOL transfer to the new vault plus a Memo instruction containing <code>patchbay:v1:&lt;fingerprint&gt;</code>. You send the vault buy you chose, 0.03 SOL for the create, and 0.01 SOL kept in the vault for gas.</li>
+<li><b>Create.</b> The server checks your transaction on-chain (signer, amount, memo), then the vault creates the coin on pump.fun through PumpPortal, signed by the vault and the new mint key, with your vault buy as the first buy. The vault then writes a second memo, <code>patchbay:v1:&lt;mint&gt;:&lt;fingerprint&gt;</code>.</li>
+<li><b>If the create fails</b>, the vault sends everything it holds back to your wallet automatically.</li></ul>
+<h2 id="vault">The vault</h2><p>Each coin gets its own fresh Solana keypair. Its secret key is encrypted at rest with AES-256-GCM and used only by the executor. The vault's address is on every coin page; its balance, its coin holdings and any stocks it bought are read live from the chain.</p>
+<h2 id="runs">Runs</h2><p>Every 10 minutes the executor visits each live coin:</p><ul>
+<li><b>Claim.</b> It builds the creator-fee claim and <b>simulates</b> it first (free). It only sends the claim when the vault would gain at least 0.002 SOL, so empty claims never eat the vault.</li>
+<li><b>Market.</b> It reads price, market cap and 1h change from DexScreener.</li>
+<li><b>Triggers.</b> Each trigger decides whether it fires and with what budget (see below).</li>
+<li><b>Actions.</b> Each cable takes its share of the budget. SOL actions run first, then Burn. Every action, including failures, becomes a receipt with its transaction signature.</li></ul>
+<p>The vault always keeps 0.01 SOL for gas. Actions smaller than 0.001 SOL are skipped. Fees below 0.005 SOL wait for the next run before a "fees arrive" trigger fires.</p>
+<h2 id="modules">Modules</h2><table><tr><th>Trigger</th><th>Fires</th><th>Budget</th></tr>
+<tr><td>Creator fees arrive</td><td>when claimed fees reach 0.005 SOL</td><td>the fees claimed</td></tr>
+<tr><td>Every N hours</td><td>on a timer from launch</td><td>a % of the vault's spare SOL</td></tr>
+<tr><td>Market cap crosses</td><td>once, the first time mcap passes the line</td><td>a % of spare SOL</td></tr>
+<tr><td>Price jumps / drops</td><td>when 1h change passes ±X% (6h cooldown)</td><td>a % of spare SOL</td></tr></table>
+<table><tr><th>Action</th><th>What it does on-chain</th></tr>
+<tr><td>Buy back</td><td>buys the coin on pump.fun (or PumpSwap after graduation) via PumpPortal; tokens stay in the vault</td></tr>
+<tr><td>Burn</td><td>SPL/Token-2022 <code>Burn</code> of a % of the coin the vault holds</td></tr>
+<tr><td>Airdrop holders</td><td>SOL to the top N holders pro rata (bonding curve, pools and the vault excluded); batched 18 per transaction</td></tr>
+<tr><td>Pay a random holder</td><td>one top-20 holder picked weighted by balance, using <code>sha256(blockhash + mint)</code>; the seed is in the receipt</td></tr>
+<tr><td>Buy a stock</td><td>Jupiter swap SOL → TSLAx / NVDAx / SPYx (Backed xStocks); held in the vault</td></tr>
+<tr><td>Pay the creator</td><td>SOL to the wallet that launched the coin</td></tr>
+<tr><td>Keep in vault</td><td>nothing moves; the SOL stays for timer and market triggers</td></tr></table>
+<p>New Solana accounts must receive at least 0.00089 SOL (rent minimum). Airdrop shares or prizes below that, to wallets that don't exist yet, are skipped instead of failing the whole transaction.</p>
+<h2 id="verify">Verifying</h2><p>Open <code>/verify/&lt;mint&gt;</code>. Your browser canonicalizes the patch (sorted keys, no whitespace), hashes it with SHA-256, and checks that hash against the creator's memo and the vault's memo, fetched from Solana. It also links the create transaction, which proves the vault is the coin's creator.</p>
+<h2 id="costs">Costs</h2><p>PATCHBAY takes no fee. You pay the vault buy you choose + 0.04 SOL (create + gas reserve). After launch, everything the vault spends comes from the coin's own creator fees.</p>
+<h2 id="faq">FAQ</h2>
+<p><b>Can the rules change after launch?</b> No. There is no endpoint to edit a patch, and the fingerprint on-chain would stop matching if anyone tried.</p>
+<p><b>Who controls the vault key?</b> The PATCHBAY executor, which only runs the patch. Every transaction it signs is public and listed on the coin page.</p>
+<p><b>Does it work after the coin graduates?</b> Yes. Buybacks route through PumpPortal's auto pool, which uses PumpSwap after graduation, and the creator-fee claim covers both.</p>
+<p><b>What if a run fails?</b> The receipt says so, the SOL stays in the vault, and the next run tries again.</p>
+</div></main>
+<script src="/common.js"></script><script>chrome('/docs');</script></body></html>

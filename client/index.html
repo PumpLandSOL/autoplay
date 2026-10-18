@@ -1,0 +1,94 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PATCHBAY · coins that play themselves</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
+<meta name="description" content="Patch a coin together from triggers and actions. Launch it on pump.fun. Its vault runs the patch forever, paid by its own creator fees.">
+<meta property="og:title" content="PATCHBAY · coins that play themselves"><meta property="og:description" content="Wire triggers to actions with patch cables. Launch on pump.fun. Your coin runs the patch forever on its own creator fees.">
+<style>
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center;padding:56px 0 30px}
+.hero h1{font-size:clamp(46px,6.2vw,96px)}.hero h1 span{color:var(--tom)}
+.hero p{color:#c9bfab;font-size:19px;line-height:1.55;max-width:560px;margin-top:22px}
+.cta{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap}
+.say{display:flex;gap:8px;margin-top:22px;max-width:560px}.say input{flex:1;background:#0e0c0a;border:2px solid #3a3229;border-radius:10px;color:var(--panel);font-family:var(--mono);font-size:13.5px;padding:14px;outline:0}.say input:focus{border-color:var(--mus)}
+.synth{position:relative;height:500px;border-radius:12px;background:#0f0d0b;border:2px solid #2c261f;overflow:hidden}
+.synth .rail{position:absolute;left:0;right:0}.synth .rail.t{top:0}.synth .rail.b{bottom:0}
+.hm{position:absolute;width:150px;padding:24px 12px 12px}.hm .silk{font-size:9.5px}.hm .t{font-family:var(--disp);font-weight:700;font-size:14px;line-height:1.1;margin-top:4px}.hm .knob{width:38px;height:38px;border-radius:50%;background:conic-gradient(from 220deg,var(--ink) 0 var(--v),#cfc5af var(--v) 280deg,transparent 280deg);margin-top:10px;position:relative}.hm .knob::after{content:'';position:absolute;inset:6px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a332b,#15120f)}
+.hm .jack{position:absolute}
+svg.wires{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.lcds{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:26px}.lcds .lcd{padding:14px 16px}.lcds .k{font-size:10.5px;letter-spacing:.16em;opacity:.75}.lcds .v{font-size:26px;font-weight:600;margin-top:4px}
+h2{font-family:var(--disp);font-weight:900;font-size:clamp(32px,4vw,52px);letter-spacing:-.03em;margin:90px 0 10px}.sub{color:#b9ae9a;font-size:16px;max-width:680px;line-height:1.55}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}.steps .plate{padding:30px 22px 22px}.steps b{display:block;font-family:var(--disp);font-size:20px;margin:10px 0 8px}.steps p{color:var(--ink2);font-size:14.5px;line-height:1.55}
+.recipes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}.rc{padding:28px 20px 20px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:transform .15s}.rc:hover{transform:translateY(-4px) rotate(-.4deg)}
+.rc .q{font-family:var(--mono);font-size:13px;line-height:1.5;color:var(--ink)}.rc .cab{display:flex;gap:4px;height:6px}.rc .cab i{flex:1;border-radius:3px}.rc .nm{font-family:var(--disp);font-weight:700;font-size:19px}
+.diff{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:26px}.diff .plate{padding:28px 22px 22px;display:grid;grid-template-columns:40px 1fr;gap:14px}.diff i{font-style:normal;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:18px;color:#fff}
+.diff b{font-family:var(--disp);font-size:17px}.diff p{color:var(--ink2);font-size:14px;line-height:1.55;margin-top:6px}
+.feed{margin-top:22px;padding:6px 18px}.fr{display:grid;grid-template-columns:110px 1fr 120px;gap:12px;padding:12px 0;border-bottom:1px solid #2c261f;font-family:var(--mono);font-size:13px;align-items:center}.fr:last-child{border:0}
+.coins{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:22px}
+@media(max-width:1000px){.hero,.steps,.recipes,.diff,.coins{grid-template-columns:1fr}.lcds{grid-template-columns:1fr 1fr}.synth{height:440px}}
+</style></head><body>
+<main class="wrap">
+<section class="hero">
+ <div><div class="silk" style="color:#8d8372">// patchbay · on pump.fun</div>
+  <h1 class="disp" style="margin-top:14px">Coins that<br><span>play</span><br>themselves.</h1>
+  <p>Patch triggers to actions with cables: fees arrive → buy back, burn, airdrop holders, buy Tesla. Launch on pump.fun in one signature. The coin's vault is its creator, so its fees pay for its own rules. Forever. Every move lands on-chain with a receipt.</p>
+  <div class="say"><input id="say" placeholder="or say it: buy back half and burn it, airdrop the rest" autocomplete="off"><button class="btn hot" onclick="location.href='/build?say='+encodeURIComponent($('say').value||$('say').placeholder.replace('or say it: ',''))">Patch it</button></div>
+  <div class="cta"><a class="btn hot" href="/build">Open the bench →</a><a class="btn dark" href="/docs">How it works</a></div></div>
+ <div class="synth" id="synth"><div class="rail t"></div><div class="rail b"></div><svg class="wires" id="wires"></svg></div>
+</section>
+<div class="lcds" id="lcds"></div>
+
+<h2>Three moves.</h2><p class="sub">No code, no contracts to deploy, no trust in a team: the rules are fixed at launch and their fingerprint is on Solana.</p>
+<div class="steps">
+ <div class="plate"><span class="tag" style="color:var(--tom)">01 · patch</span><b>Wire your rules</b><p>Drag cables from triggers (fees arrive, every 6h, market cap passes $100k, price dumps 20%) to actions (buy back, burn, airdrop, random holder, buy a stock, pay creator). Or type one sentence.</p></div>
+ <div class="plate"><span class="tag" style="color:var(--cob)">02 · launch</span><b>One signature</b><p>Your wallet funds the coin's vault, and the memo carries the patch's SHA-256. The vault creates the coin on pump.fun as its creator and makes the first buy.</p></div>
+ <div class="plate"><span class="tag" style="color:var(--min)">03 · it plays</span><b>Forever, on its fees</b><p>Every few minutes the vault checks its creator fees, claims them when they're worth claiming, and runs your patch. Every action is a Solana transaction you can click.</p></div>
+</div>
+
+<h2>Recipes.</h2><p class="sub">Tap one to load it on the bench. Change anything before you launch.</p>
+<div class="recipes" id="recipes"></div>
+
+<h2>Built to be checked.</h2><p class="sub">The coin's patch is public, its vault address is public, and every action carries a transaction signature.</p>
+<div class="diff">
+ <div class="plate"><i style="background:var(--tom)">#</i><div><b>Fingerprint on-chain, twice</b><p>The creator's funding transaction and the vault's own memo both carry the SHA-256 of the canonical patch. The verify page recomputes it in your browser.</p></div></div>
+ <div class="plate"><i style="background:var(--cob)">◎</i><div><b>Fees claimed only when it pays</b><p>The vault simulates the creator-fee claim for free first and only sends it once there's enough to beat the gas. No vault bleeding on empty claims.</p></div></div>
+ <div class="plate"><i style="background:var(--mus)">⚄</i><div><b>Provably fair random holder</b><p>The winner is picked weighted by balance from the run's Solana blockhash. The receipt carries the seed, so anyone can recompute the pick.</p></div></div>
+ <div class="plate"><i style="background:var(--min)">▤</i><div><b>Real stocks, not wrappers we made</b><p>"Buy a stock" swaps SOL for Backed's xStocks (TSLAx, NVDAx, SPYx) through Jupiter, and the vault holds them.</p></div></div>
+ <div class="plate"><i style="background:var(--mag)">⏱</i><div><b>Timers and market triggers</b><p>Not just "when fees arrive": every N hours, market cap milestones, pump and dump reactions, each with its own budget from the vault.</p></div></div>
+ <div class="plate"><i style="background:var(--vio)">✓</i><div><b>Receipts for everything</b><p>Claims, buybacks, burns, airdrops, failures too. Nothing is summarized away; each row links to Solscan.</p></div></div>
+</div>
+
+<h2>Live coins.</h2><div class="coins" id="coins"></div>
+<h2>The tape.</h2><p class="sub">Every action every coin takes, newest first.</p>
+<div class="plate feed" style="background:#191512;color:var(--panel);box-shadow:none;border:2px solid #2c261f" id="feed"></div>
+</main>
+<script src="/common.js"></script><script>
+chrome('/');
+// hero synth: a real patch drawn as modules, with signal pulses running down the cables
+const HM = [['t', 'fees', 'Creator fees arrive', 46, 70, 0.8], ['t', 'every', 'Every 6h', 236, 70, 0.4], ['a', 'buyback', 'Buy back', 18, 300, 0.5], ['a', 'burn', 'Burn', 178, 300, 1], ['a', 'airdrop', 'Airdrop top 20', 338, 300, 0.3], ['a', 'stock', 'Buy TSLA', 498, 300, 0.2]];
+const HW = [[0, 2, '#ff5a36'], [0, 3, '#ffc12e'], [0, 4, '#19c98a'], [1, 5, '#2f6bff'], [1, 4, '#ff4fa3']];
+const sy = $('synth');
+function heroLayout() { const W = sy.clientWidth, sc = Math.min(1, W / 660); sy.querySelectorAll('.hm').forEach((e) => e.remove());
+  HM.forEach(([k, ic, t, x, y, v], i) => { const d = document.createElement('div'); d.className = 'plate hm'; d.style.left = x * sc + 'px'; d.style.top = y + 'px'; d.style.width = "146px"; d.style.transform = `scale(${sc})`; d.style.transformOrigin = '0 0';
+    d.innerHTML = `<span class="led ${k === 'a' ? 'g' : ''}" id="hl${i}" style="position:absolute;top:6px;left:24px"></span><div class="silk">${k === 't' ? 'trigger' : 'action'}</div><div class="t">${ICON[ic]} ${t}</div><div class="knob" style="--v:${v * 280}deg"></div><span class="jack" id="hj${i}" style="${k === 't' ? 'bottom:-13px' : 'top:-13px'};left:50%;margin-left:-13px"></span>`; sy.append(d); }); }
+function jp(i) { const j = $('hj' + i), r = sy.getBoundingClientRect(), b = j.getBoundingClientRect(); return [b.left - r.left + b.width / 2, b.top - r.top + b.height / 2]; }
+function heroFrame(t) { let h = ''; HW.forEach(([a, b, c], k) => { const [x1, y1] = jp(a), [x2, y2] = jp(b), sag = 70 + Math.abs(x2 - x1) * .2, d = `M${x1},${y1} C${x1 + (k - 2) * 14},${y1 + sag} ${x2},${y2 - sag + 20} ${x2},${y2}`;
+    h += `<path d="${d}" stroke="#0008" stroke-width="10" fill="none" transform="translate(0,5)"/><path id="hp${k}" d="${d}" stroke="${c}" stroke-width="8" fill="none" stroke-linecap="round"/><path d="${d}" stroke="#fff5" stroke-width="2" fill="none" transform="translate(-1,-2)"/>`; });
+  $('wires').innerHTML = h;
+  HW.forEach(([a, b, c], k) => { const p = $('hp' + k), L = p.getTotalLength(), ph = ((t / 1600 + k * .23) % 1); const pt = p.getPointAtLength(L * ph);
+    $('wires').insertAdjacentHTML('beforeend', `<circle cx="${pt.x}" cy="${pt.y}" r="7" fill="#fff" opacity=".95"/><circle cx="${pt.x}" cy="${pt.y}" r="14" fill="${c}" opacity=".35"/>`);
+    const on = ph > .9; $('hl' + b).classList.toggle('on', on || $('hl' + b).dataset.hold > t); if (on) $('hl' + b).dataset.hold = t + 300; $('hl' + a).classList.toggle('on', ph < .12); }); }
+heroLayout(); new ResizeObserver(heroLayout).observe(sy); let rafOk = 0; (function loop(t) { rafOk = 1; heroFrame(t || performance.now()); requestAnimationFrame(loop); })(); setInterval(() => { if (!rafOk) heroFrame(performance.now()); rafOk = 0; }, 60);
+// recipes
+const RC = [['The Furnace', 'buy back 70% and burn, keep the rest', ['#ff5a36', '#ffc12e']], ['Dividend Coin', 'airdrop 80% to top 20 holders, keep the rest', ['#19c98a']], ['Tesla Treasury', 'When fees come in, buy Tesla with half and airdrop the rest to holders.', ['#2f6bff', '#19c98a']],
+  ['Lucky Hour', 'Every hour, send 20% of the vault to one random holder.', ['#ff4fa3']], ['Moon Burn', 'When market cap passes $100k, burn 50% of the coin\'s tokens.', ['#ffc12e']], ['Dip Buyer', 'When price drops 20%, buy back with 100%', ['#8c5cff', '#ff5a36']]];
+$('recipes').innerHTML = RC.map(([n, q, cs]) => `<div class="plate rc" onclick="location.href='/build?say=${encodeURIComponent(q)}'"><div class="cab">${cs.map((c) => `<i style="background:${c}"></i>`).join('')}</div><div class="nm">${n}</div><div class="q">“${esc(q)}”</div><span class="silk" style="margin-top:auto">load on the bench →</span></div>`).join('');
+// live data
+const KIND = { launch: ['#ff5a36', 'LAUNCH'], fees: ['#19c98a', 'FEES IN'], buyback: ['#ff5a36', 'BUYBACK'], burn: ['#ffc12e', 'BURN'], airdrop: ['#19c98a', 'AIRDROP'], lottery: ['#ff4fa3', 'RANDOM'], stock: ['#2f6bff', 'STOCK'], creator: ['#8c5cff', 'CREATOR'], keep: ['#8d8372', 'KEEP'] };
+async function live() { try {
+  const [s, a, c] = await Promise.all([api('/api/stats'), api('/api/activity?n=14'), api('/api/coins')]);
+  $('lcds').innerHTML = [['COINS PLAYING', s.coins], ['SOL ROUTED BY RULES', s.routedSol.toFixed(3)], ['CREATOR FEES CLAIMED', s.feesSol.toFixed(3) + ' SOL'], ['ACTIONS ON-CHAIN', s.actions]].map(([k, v]) => `<div class="lcd"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  $('feed').innerHTML = a.items.length ? a.items.map((r) => { const [col, lab] = KIND[r.kind] || ['#8d8372', r.kind]; return `<div class="fr"><span class="tag" style="color:${r.ok ? col : '#ff3b1f'}">${r.ok ? lab : 'FAILED'}</span><span><a href="/c/${r.mint}" style="color:var(--mus)">$${esc(r.ticker)}</a> ${esc(r.text)}</span><span style="text-align:right;color:#8d8372">${r.sig ? `<a href="${tx(r.sig)}" target="_blank">tx ↗</a> · ` : ''}${ago(r.at)}</span></div>`; }).join('')
+    : '<div class="fr"><span class="tag" style="color:#8d8372">EMPTY</span><span style="color:#8d8372">No coins playing yet. The first launch shows up here.</span><span></span></div>';
+  $('coins').innerHTML = c.coins.length ? c.coins.slice(0, 8).map((k) => `<a class="plate" href="/c/${k.mint}" style="padding:26px 16px 16px;display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center"><img src="${k.image}" style="width:52px;height:52px;border-radius:8px;border:2px solid var(--ink);object-fit:cover"><div><div style="font-family:var(--disp);font-weight:700">$${esc(k.symbol)}</div><div class="silk">${k.market ? usd(k.market.mcap) + ' mcap' : 'new'} · ${k.patch.wires.length} cables</div></div></a>`).join('')
+    : '<div class="plate" style="padding:26px 18px 18px;grid-column:1/-1"><b style="font-family:var(--disp)">The rack is empty.</b> <span style="color:var(--ink2)">Be the first coin that plays itself.</span> <a class="btn hot" href="/build" style="margin-left:12px">Launch one →</a></div>';
+} catch {} }
+live(); setInterval(live, 10000);
+</script></body></html>
