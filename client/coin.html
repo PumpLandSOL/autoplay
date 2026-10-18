@@ -3,29 +3,29 @@
 <style>
 .hdr{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;padding:40px 0 20px}
 .hdr img{width:96px;height:96px;border-radius:12px;border:3px solid var(--panel);object-fit:cover;background:#2a241e}
-.hdr h1{font-size:clamp(34px,5vw,60px)}.hdr .nm{color:#b9ae9a;font-size:16px;margin-top:6px}
-.clinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.clinks a{font-family:var(--mono);font-size:12px;color:#c9bfab;border:1.5px solid #3a3229;border-radius:99px;padding:6px 11px}.clinks a:hover{color:var(--mus);border-color:var(--mus)}
+.hdr h1{font-size:clamp(34px,5vw,60px)}.hdr .nm{color:var(--ink2);font-size:16px;margin-top:6px}
+.clinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.clinks a{font-family:var(--mono);font-size:12px;color:var(--ink2);border:1.5px solid var(--ink);border-radius:99px;padding:6px 11px}.clinks a:hover{color:var(--mus);border-color:var(--mus)}
 .lcds{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.lcds .lcd{padding:12px 14px}.lcds .k{font-size:10px;letter-spacing:.14em;opacity:.75}.lcds .v{font-size:20px;font-weight:600;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .grid{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-top:16px;align-items:start}
-.rackv{background:#0f0d0b;border:2px solid #2c261f;border-radius:10px;padding:10px;overflow:hidden}
+.rackv{background:#0f0d0b;border:2px solid var(--ink);border-radius:10px;padding:10px;overflow:hidden}
 .flash{animation:fl 1.2s ease-in-out infinite}@keyframes fl{50%{filter:brightness(1.7) drop-shadow(0 0 6px #fff)}}
 .plate.pad{padding:26px 20px 20px}.rules li{margin:8px 0 0 16px;line-height:1.5;font-size:14.5px}
-.rc{display:grid;grid-template-columns:96px 1fr 110px;gap:10px;padding:11px 0;border-bottom:1px solid #2c261f;font-family:var(--mono);font-size:12.5px;align-items:center}.rc:last-child{border:0}
-.feed{background:#191512;border:2px solid #2c261f;border-radius:10px;padding:4px 18px;margin-top:16px}
+.rc{display:grid;grid-template-columns:96px 1fr 110px;gap:10px;padding:11px 0;border-bottom:1px solid var(--ink);font-family:var(--mono);font-size:12.5px;align-items:center}.rc:last-child{border:0}
+.feed{background:var(--paper);border:2px solid var(--ink);border-radius:10px;padding:4px 18px;margin-top:16px}
 .vf{display:flex;gap:10px;align-items:center;margin-top:14px;padding:12px 14px;border:2px dashed #b8ad97;border-radius:8px;font-family:var(--mono);font-size:12px;word-break:break-all}
 .cd{font-family:var(--mono);font-size:12px;color:var(--ink2);margin-top:10px}
 @media(max-width:1000px){.grid{grid-template-columns:1fr}.lcds{grid-template-columns:1fr 1fr}.hdr{grid-template-columns:auto 1fr}.hdr>div:last-child{grid-column:1/-1}}
 </style></head><body>
-<main class="wrap" id="m"><div style="padding:80px 0;color:#8d8372" class="mono">loading the rack…</div></main>
+<main class="wrap" id="m"><div style="padding:80px 0;color:var(--ink3)" class="mono">loading the rack…</div></main>
 <script src="/common.js"></script><script>
 chrome('/coins');
 const MINT = decodeURIComponent(location.pathname.split('/c/')[1] || '');
-const KIND = { launch: ['#ff5a36', 'LAUNCH'], fees: ['#19c98a', 'FEES IN'], buyback: ['#ff5a36', 'BUYBACK'], burn: ['#ffc12e', 'BURN'], airdrop: ['#19c98a', 'AIRDROP'], lottery: ['#ff4fa3', 'RANDOM'], stock: ['#2f6bff', 'STOCK'], creator: ['#8c5cff', 'CREATOR'], keep: ['#8d8372', 'KEEP'] };
+const KIND = { launch: ['#ff5a36', 'LAUNCH'], fees: ['#19c98a', 'FEES IN'], buyback: ['#ff5a36', 'BUYBACK'], burn: ['#d69a00', 'BURN'], airdrop: ['#0f9a68', 'AIRDROP'], lottery: ['#ff4fa3', 'RANDOM'], stock: ['#2f6bff', 'STOCK'], creator: ['#8c5cff', 'CREATOR'], keep: ['var(--ink3)', 'KEEP'] };
 let C = null, built = false;
-async function load() { try { C = await api('/api/coin/' + encodeURIComponent(MINT)); } catch (e) { $('m').innerHTML = `<div style="padding:80px 0"><h1 class="disp" style="font-size:44px">No coin here.</h1><p style="color:#b9ae9a;margin-top:12px">${esc(e.message)}</p><a class="btn hot" style="margin-top:20px" href="/build">Patch one →</a></div>`; return; }
+async function load() { try { C = await api('/api/coin/' + encodeURIComponent(MINT)); } catch (e) { $('m').innerHTML = `<div style="padding:80px 0"><h1 class="disp" style="font-size:44px">No coin here.</h1><p style="color:var(--ink2);margin-top:12px">${esc(e.message)}</p><a class="btn hot" style="margin-top:20px" href="/build">Patch one →</a></div>`; return; }
   document.title = '$' + C.symbol + ' · PATCHBAY'; if (!built) build(); fill(); }
 function build() { built = true; const c = C;
-  $('m').innerHTML = `<section class="hdr"><img src="${c.image}" alt=""><div><div class="silk" style="color:#8d8372"><span class="led g on"></span>&nbsp; ${c.status === 'live' ? 'playing its patch' : esc(c.status)}</div><h1 class="disp">$${esc(c.symbol)}</h1><div class="nm">${esc(c.name)}${c.description ? ' · ' + esc(c.description) : ''}</div>
+  $('m').innerHTML = `<section class="hdr"><img src="${c.image}" alt=""><div><div class="silk" style="color:var(--ink3)"><span class="led g on"></span>&nbsp; ${c.status === 'live' ? 'playing its patch' : esc(c.status)}</div><h1 class="disp">$${esc(c.symbol)}</h1><div class="nm">${esc(c.name)}${c.description ? ' · ' + esc(c.description) : ''}</div>
    <div class="clinks"><a href="https://pump.fun/coin/${c.mint}" target="_blank">pump.fun ↗</a><a href="${acct(c.mint)}" target="_blank">mint ${short(c.mint)} ↗</a><a href="${acct(c.vault)}" target="_blank">vault ${short(c.vault)} ↗</a><a href="https://dexscreener.com/solana/${c.mint}" target="_blank">chart ↗</a><a href="/verify/${c.mint}" style="color:var(--min);border-color:var(--min)">✓ verify the patch</a></div></div>
    <div><button class="btn" onclick="copy('${c.mint}')">Copy CA</button></div></section>
   <div class="lcds" id="lcd"></div>
@@ -41,7 +41,7 @@ function fill() { const c = C, v = c.vaultHoldings || {}, mk = c.market;
   const recent = c.receipts.filter((r) => r.ok && Date.now() - r.at < 15 * 60e3), flash = {}; for (const r of recent) { for (const a of c.patch.actions) if (a.type === r.kind) flash[a.id] = 1; }
   drawPatch($('patch'), c.patch, flash);
   $('vh').innerHTML = `◎ ${v.sol == null ? '—' : solFmt(v.sol)} SOL<br>$${esc(c.symbol)} ${v.coin == null ? '—' : Math.round(v.coin).toLocaleString()}${Object.entries(v.stocks || {}).map(([k, x]) => `<br>${k}x ${(+x).toFixed(4)}`).join('')}`;
-  $('rc').innerHTML = c.receipts.length ? c.receipts.map((r) => { const [col, lab] = KIND[r.kind] || ['#8d8372', r.kind]; return `<div class="rc"><span class="tag" style="color:${r.ok ? col : '#ff3b1f'}">${r.ok ? lab : 'FAILED'}</span><span>${esc(r.text)}${r.trigger ? ` <span style="color:#8d8372">· ${esc(r.trigger)}</span>` : ''}${r.seed ? ` <span style="color:#8d8372" title="weighted pick seed">· seed ${short(r.seed, 6, 4)}</span>` : ''}</span><span style="text-align:right;color:#8d8372">${r.sig ? `<a href="${tx(r.sig)}" target="_blank" style="color:var(--mus)">tx ↗</a> · ` : ''}${ago(r.at)}</span></div>`; }).join('') : '<div class="rc"><span class="tag" style="color:#8d8372">WAITING</span><span style="color:#8d8372">No receipts yet.</span><span></span></div>'; }
+  $('rc').innerHTML = c.receipts.length ? c.receipts.map((r) => { const [col, lab] = KIND[r.kind] || ['var(--ink3)', r.kind]; return `<div class="rc"><span class="tag" style="color:${r.ok ? col : '#ff3b1f'}">${r.ok ? lab : 'FAILED'}</span><span>${esc(r.text)}${r.trigger ? ` <span style="color:var(--ink3)">· ${esc(r.trigger)}</span>` : ''}${r.seed ? ` <span style="color:var(--ink3)" title="weighted pick seed">· seed ${short(r.seed, 6, 4)}</span>` : ''}</span><span style="text-align:right;color:var(--ink3)">${r.sig ? `<a href="${tx(r.sig)}" target="_blank" style="color:var(--ink);font-weight:600">tx ↗</a> · ` : ''}${ago(r.at)}</span></div>`; }).join('') : '<div class="rc"><span class="tag" style="color:var(--ink3)">WAITING</span><span style="color:var(--ink3)">No receipts yet.</span><span></span></div>'; }
 setInterval(() => { if (!C || !$('cd')) return; const s = Math.max(0, Math.round(((C.nextRun || 0) - Date.now()) / 1000)); $('cd').textContent = C.nextRun ? `next run in ${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s · claims fees, checks triggers, plays the patch` : ''; }, 1000);
 load(); setInterval(load, 15000);
 </script></body></html>

@@ -1,12 +1,12 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>How it works · PATCHBAY</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/patch.css">
-<style>.doc{display:grid;grid-template-columns:220px 1fr;gap:40px;padding:44px 0}.toc{position:sticky;top:90px;align-self:start;font-family:var(--mono);font-size:12.5px;display:grid;gap:8px}.toc a{color:#8d8372}.toc a:hover{color:var(--mus)}
-.body h1{font-size:clamp(36px,5vw,64px)}.body h2{font-family:var(--disp);font-size:24px;letter-spacing:-.02em;margin:46px 0 12px}.body p,.body li{color:#c9bfab;font-size:15.5px;line-height:1.7;margin-top:10px}.body ul{margin-left:20px}
-.body b{color:var(--panel)}.body code{font-family:var(--mono);font-size:13px;background:#241f1a;padding:2px 6px;border-radius:4px;color:var(--mus)}
-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}td,th{text-align:left;padding:10px 8px;border-bottom:1px solid #2c261f;color:#c9bfab;vertical-align:top}th{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:#8d8372}td:first-child{color:var(--panel);font-weight:600;white-space:nowrap}
+<style>.doc{display:grid;grid-template-columns:220px 1fr;gap:40px;padding:44px 0}.toc{position:sticky;top:90px;align-self:start;font-family:var(--mono);font-size:12.5px;display:grid;gap:8px}.toc a{color:var(--ink3)}.toc a:hover{color:var(--mus)}
+.body h1{font-size:clamp(36px,5vw,64px)}.body h2{font-family:var(--disp);font-size:24px;letter-spacing:-.02em;margin:46px 0 12px}.body p,.body li{color:var(--ink2);font-size:15.5px;line-height:1.7;margin-top:10px}.body ul{margin-left:20px}
+.body b{color:var(--ink)}.body code{font-family:var(--mono);font-size:13px;background:#fff3cf;padding:2px 6px;border-radius:6px;color:var(--ink);border:1.5px solid var(--ink)}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}td,th{text-align:left;padding:10px 8px;border-bottom:1px solid var(--ink);color:var(--ink2);vertical-align:top}th{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--ink3)}td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
 @media(max-width:900px){.doc{grid-template-columns:1fr}.toc{position:static}}</style></head><body>
 <main class="wrap doc"><nav class="toc"><a href="#idea">The idea</a><a href="#launch">Launching</a><a href="#vault">The vault</a><a href="#runs">Runs</a><a href="#modules">Modules</a><a href="#verify">Verifying</a><a href="#costs">Costs</a><a href="#faq">FAQ</a></nav>
-<div class="body"><div class="silk" style="color:#8d8372">// how it works</div><h1 class="disp" style="margin-top:8px">The whole machine.</h1>
+<div class="body"><div class="silk" style="color:var(--ink3)">// how it works</div><h1 class="disp" style="margin-top:8px">The whole machine.</h1>
 <h2 id="idea">The idea</h2><p>A PATCHBAY coin is a normal pump.fun coin with one difference: its <b>creator is a vault</b>, not a person. pump.fun pays creator fees on every trade to the creator. So the fees from trading the coin land in the vault, and the vault spends them exactly the way the coin's patch says: buy back, burn, airdrop holders, pay a random holder, buy tokenized stocks, pay the creator, or keep it for later.</p>
 <p>The patch is fixed at launch. There is no edit endpoint. Its SHA-256 fingerprint is written on Solana twice, so anyone can check that the rules on the site are the rules the coin was launched with.</p>
 <h2 id="launch">Launching</h2><ul>
