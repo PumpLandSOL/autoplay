@@ -5,10 +5,13 @@
 const http = require('http'), fs = require('fs'), path = require('path'), crypto = require('crypto');
 const S = require('./sol'), C = require('./chain'), R = require('./rules');
 
-const PORT = +process.env.PORT || 8258, DIR = process.env.DATA_PATH || path.join(__dirname, '..', 'data'), CLIENT = path.join(__dirname, '..', 'client');
+const PORT = +process.env.PORT || 8258; let DIR = process.env.DATA_PATH || path.join(__dirname, '..', 'data'), CLIENT = path.join(__dirname, '..', 'client');
 const RUN_MIN = +process.env.RUN_MIN || 10, RESERVE = 10_000_000, LAUNCH_COST = 30_000_000, MIN_ACTION = 1_000_000, MIN_FEES = 5_000_000, MAX_DEV_BUY = 5;
 const SITE = process.env.SITE_URL || 'https://autoplaypad.net';
-fs.mkdirSync(DIR, { recursive: true });
+// if DATA_PATH isn't writable (e.g. no disk mounted at /data on Render) don't crash: boot on a local folder and keep launches closed
+let DIR_OK = true;
+try { fs.mkdirSync(DIR, { recursive: true }); fs.accessSync(DIR, fs.constants.W_OK); }
+catch (e) { console.error('DATA_PATH not writable (' + DIR + '): ' + e.code + '. Mount a persistent disk there. Booting on ./data with launches closed.'); DIR_OK = false; DIR = path.join(__dirname, '..', 'data'); fs.mkdirSync(DIR, { recursive: true }); }
 const DB = path.join(DIR, 'db.json');
 
 // ---------- vault keys: AES-256-GCM at rest under MASTER_KEY (env) or a generated key file in DATA_PATH ----------
@@ -17,7 +20,7 @@ const MK = process.env.MASTER_KEY || ''; // 64 hex chars, or base64 of 32 bytes 
 const MASTER = MK ? Buffer.from(MK, /^[0-9a-f]{64}$/i.test(MK) ? 'hex' : 'base64') : (fs.existsSync(KEYFILE) ? Buffer.from(fs.readFileSync(KEYFILE, 'utf8').trim(), 'hex') : (() => { const k = crypto.randomBytes(32); fs.writeFileSync(KEYFILE, k.toString('hex'), { mode: 0o600 }); return k; })());
 if (MASTER.length !== 32) throw new Error('MASTER_KEY must be 32 bytes (64 hex or base64)');
 // on Render, vault keys must live on a persistent disk or a redeploy would lose them: no launches without DATA_PATH
-const LAUNCHES_OPEN = !process.env.RENDER || !!process.env.DATA_PATH;
+const LAUNCHES_OPEN = DIR_OK && (!process.env.RENDER || !!process.env.DATA_PATH);
 const seal = (seed) => { const iv = crypto.randomBytes(12), c = crypto.createCipheriv('aes-256-gcm', MASTER, iv); const ct = Buffer.concat([c.update(seed), c.final()]); return [iv, c.getAuthTag(), ct].map((b) => b.toString('base64')).join('.'); };
 const open = (s) => { const [iv, tag, ct] = s.split('.').map((x) => Buffer.from(x, 'base64')); const d = crypto.createDecipheriv('aes-256-gcm', MASTER, iv); d.setAuthTag(tag); return Buffer.concat([d.update(ct), d.final()]); };
 const vaultOf = (coin) => S.keypair(open(coin.vaultKey));
