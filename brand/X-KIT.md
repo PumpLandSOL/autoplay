@@ -141,7 +141,7 @@ One gets dumped. One plays itself.
 $AUTO
 ```
 
-## 13. (text only)
+## 13. autoplay-fees.png
 ```
 Your creator fees are the most honest signal a coin has.
 
@@ -152,7 +152,7 @@ autoplaypad.net
 $AUTO
 ```
 
-## 14. (text only)
+## 14. autoplay-patch-cant-lie.png
 ```
 A dev can lie in a TG.
 
@@ -165,7 +165,7 @@ Check any coin: autoplaypad.net
 $AUTO
 ```
 
-## 15. (text only)
+## 15. autoplay-build-on.png
 ```
 Building on top of AUTOPLAY? Plug in.
 
