@@ -116,3 +116,62 @@ Pick a recipe, launch it.
 
 autoplaypad.net
 ```
+
+## 11. autoplay-say-18s.mp4
+```
+Say it. It plays.
+
+Type "buy back 70% and burn" and AUTOPLAY wires the patch for you. One signature launches it on pump.fun, and the coin runs it on its own fees.
+
+autoplaypad.net
+
+$AUTO
+```
+
+## 12. autoplay-twocoins-18s.mp4
+```
+Same trades. Same fees.
+
+Normal launch: fees go to the dev wallet, then get sold.
+
+AUTOPLAY launch: fees go to a vault that buys back, burns and pays holders.
+
+One gets dumped. One plays itself.
+
+$AUTO
+```
+
+## 13. (text only)
+```
+Your creator fees are the most honest signal a coin has.
+
+On AUTOPLAY they can't be pocketed. They're spent by rules fingerprinted on Solana, every 10 minutes, with a receipt.
+
+autoplaypad.net
+
+$AUTO
+```
+
+## 14. (text only)
+```
+A dev can lie in a TG.
+
+A patch can't.
+
+Every AUTOPLAY coin publishes its rules, hashes them on Solana, and proves every move with a transaction.
+
+Check any coin: autoplaypad.net
+
+$AUTO
+```
+
+## 15. (text only)
+```
+Building on top of AUTOPLAY? Plug in.
+
+AUTOPLAY has a public API, embeddable coin cards and signed webhooks for every buyback, burn and airdrop.
+
+autoplaypad.net/docs
+
+$AUTO
+```

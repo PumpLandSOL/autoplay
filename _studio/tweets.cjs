@@ -76,6 +76,11 @@ $AUTO`],
 Pick a recipe, launch it.
 
 autoplaypad.net`],
+  ["autoplay-say-18s.mp4", "Say it. It plays.\n\nType \"buy back 70% and burn\" and AUTOPLAY wires the patch for you. One signature launches it on pump.fun, and the coin runs it on its own fees.\n\nautoplaypad.net\n\n$AUTO"],
+  ["autoplay-twocoins-18s.mp4", "Same trades. Same fees.\n\nNormal launch: fees go to the dev wallet, then get sold.\n\nAUTOPLAY launch: fees go to a vault that buys back, burns and pays holders.\n\nOne gets dumped. One plays itself.\n\n$AUTO"],
+  ["(text only)", "Your creator fees are the most honest signal a coin has.\n\nOn AUTOPLAY they can't be pocketed. They're spent by rules fingerprinted on Solana, every 10 minutes, with a receipt.\n\nautoplaypad.net\n\n$AUTO"],
+  ["(text only)", "A dev can lie in a TG.\n\nA patch can't.\n\nEvery AUTOPLAY coin publishes its rules, hashes them on Solana, and proves every move with a transaction.\n\nCheck any coin: autoplaypad.net\n\n$AUTO"],
+  ["(text only)", "Building on top of AUTOPLAY? Plug in.\n\nAUTOPLAY has a public API, embeddable coin cards and signed webhooks for every buyback, burn and airdrop.\n\nautoplaypad.net/docs\n\n$AUTO"],
 ];
 let md = '# AUTOPLAY X kit\n\nsite: https://autoplaypad.net\n', bad = 0;
 T.forEach(([f, t], i) => { const n = [...t].length; if (n > 245) bad++; console.log(i + 1, n, f); md += `\n## ${i + 1}. ${f}\n\`\`\`\n${t}\n\`\`\`\n`; });
