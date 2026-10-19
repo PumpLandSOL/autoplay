@@ -49,3 +49,5 @@ footer .fcols{display:grid;grid-template-columns:1.4fr repeat(5,1fr);gap:28px;al
 .fcol a{display:block;font-family:var(--body);font-size:15px;font-weight:600;color:var(--panel);margin-bottom:12px;transition:color .15s,transform .15s}.fcol a:hover{color:var(--mus);transform:translateX(3px)}
 footer .fbar{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;border-top:1px solid #2c261f;margin-top:30px;padding-top:20px;font-size:11.5px;color:#6d6455}
 @media(max-width:900px){footer .fcols{grid-template-columns:1fr 1fr}.fbrand{grid-column:1/-1}}
+.ca{display:inline-flex;align-items:center;gap:12px;margin-top:22px;padding:9px 10px 9px 16px;border-radius:99px;border:1.5px solid #3a3229;background:#0f0d0b;color:#ece4d2;font-family:'IBM Plex Mono',monospace;font-size:13px;cursor:pointer;max-width:100%}
+.ca span{color:#ffc12e;letter-spacing:.12em;font-size:11px;white-space:nowrap}.ca code{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ca b{background:#ff5a36;color:#14110e;border-radius:99px;padding:4px 12px;font-size:11px;letter-spacing:.1em;text-transform:uppercase}.ca:hover{border-color:#ff5a36}

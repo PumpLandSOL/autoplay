@@ -67,7 +67,7 @@ h2{font-family:var(--disp);font-weight:900;font-size:clamp(32px,4vw,52px);letter
   <div class="now" id="now"></div>
   <p>Patch triggers to actions with cables: fees arrive → buy back, burn, airdrop holders, buy Tesla. Launch on pump.fun in one signature. The coin's vault is its creator, so its fees pay for its own rules. Forever. Every move lands on-chain with a receipt.</p>
   <div class="say" id="quick" style="scroll-margin-top:120px"><input id="say" placeholder="or say it: buy back half and burn it, airdrop the rest" autocomplete="off"><button class="btn hot" onclick="location.href='/build?say='+encodeURIComponent($('say').value||$('say').placeholder.replace('or say it: ',''))">Patch it</button></div>
-  <div class="cta"><a class="btn hot" href="/build">Open the bench →</a><a class="btn dark" href="/docs">How it works</a></div></div>
+  <div class="cta"><a class="btn hot" href="/build">Open the bench →</a><a class="btn dark" href="/docs">How it works</a></div><button class="ca" onclick="navigator.clipboard.writeText('8eHjnkajh9qS9iCPJeotDyiLCA6ZZBBxbNhVj3Bkpump').then(()=>toast('CA copied'))" title="Copy contract address"><span>$AUTO CA</span><code>8eHjnkajh9qS9iCPJeotDyiLCA6ZZBBxbNhVj3Bkpump</code><b>copy</b></button></div>
 </section>
 <div class="synth" id="synth"><div class="rail t"></div><div class="rail b"></div><svg class="wires" id="wires"></svg></div>
 <div class="lcds" id="lcds"></div>
